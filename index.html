@@ -3,29 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#CFE2F4">
+<meta name="theme-color" content="#F3E3CB">
 <title>White | بلايستيشن وكافيه</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#BFE3F5"/></linearGradient></defs>
-  <symbol id="pad" viewBox="0 0 120 80">
-    <path d="M30 8h60c10 0 16 6 20 20l8 30c3 11-3 18-12 18-7 0-11-4-15-11l-4-7H33l-4 7c-4 7-8 11-15 11C5 76-1 69 2 58l8-30C14 14 20 8 30 8z" fill="url(#gp)" stroke="#8FC3E4" stroke-width="2"/>
-    <circle cx="44" cy="40" r="7" fill="#7FB7DB"/><circle cx="76" cy="40" r="7" fill="#7FB7DB"/>
-    <path d="M24 24v12M18 30h12" stroke="#2A8FC0" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="96" cy="22" r="3.5" fill="#26B9D1"/><circle cx="105" cy="30" r="3.5" fill="#2A8FC0"/>
-  </symbol>
-</svg>
-
-<!-- شاشة الترحيب -->
 <div class="splash" id="splash">
   <div class="splash-card">
-    <svg class="pad-lg" viewBox="0 0 120 80"><use href="#pad"/></svg>
+    <svg class="pad-lg" viewBox="0 0 160 110" aria-hidden="true"><use href="#pad"/></svg>
     <h1 class="splash-brand">White</h1>
     <p class="splash-tag">بلايستيشن وكافيه</p>
     <p class="splash-sub">شوف الأجهزة المتاحة الآن واحجز موعدك من مكانك.</p>
@@ -35,9 +24,9 @@
 </div>
 
 <header class="topbar">
-  <button class="icon-btn" id="backBtn" aria-label="رجوع" hidden>→</button>
+  <button class="icon-btn" id="backBtn" aria-label="رجوع" hidden><svg class="i"><use href="#i-back"/></svg></button>
   <div class="top-title" id="topTitle">White</div>
-  <button class="icon-btn" id="themeBtn" aria-label="تبديل الوضع الداكن">◐</button>
+  <button class="icon-btn" id="themeBtn" aria-label="تبديل الوضع الداكن"><svg class="i"><use href="#i-moon"/></svg></button>
 </header>
 
 <main id="app">
@@ -50,10 +39,10 @@
 </main>
 
 <nav class="bottomnav" id="bottomNav" aria-label="التنقل الرئيسي">
-  <button class="nav-item" data-go="home"><span>⌂</span>الرئيسية</button>
-  <button class="nav-item" data-go="devices"><span>🎮</span>الأجهزة</button>
-  <button class="nav-item" data-go="menu"><span>☕</span>المنيو</button>
-  <button class="nav-item" data-go="account"><span>👤</span>حسابي</button>
+  <button class="nav-item" data-go="home"><svg class="i"><use href="#i-home"/></svg>الرئيسية</button>
+  <button class="nav-item" data-go="devices"><svg class="i"><use href="#i-gamepad"/></svg>الأجهزة</button>
+  <button class="nav-item" data-go="menu"><svg class="i"><use href="#i-coffee"/></svg>المنيو</button>
+  <button class="nav-item" data-go="account"><svg class="i"><use href="#i-user"/></svg>حسابي</button>
 </nav>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -61,8 +50,11 @@
 <!-- عند ربط Supabase: أضف قبل store.js
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script> -->
 <script src="js/config.js"></script>
+<script src="js/data/demo-db.js"></script>
 <script src="js/core/status.js"></script>
 <script src="js/data/store.js"></script>
+<script src="js/ui/icons.js"></script>
+<script src="js/ui/fx.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
