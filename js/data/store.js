@@ -23,6 +23,11 @@
 
     return {
       mode: 'demo',
+      async currentUser() { try { return JSON.parse(localStorage.getItem('white-demo-user') || 'null'); } catch (_) { return null; } },
+      async signUp({ name, email }) { const u = { id: 'demo-user', name, email }; try { localStorage.setItem('white-demo-user', JSON.stringify(u)); } catch (_) {} return { ok: true }; },
+      async signIn({ email }) { const u = { id: 'demo-user', name: email.split('@')[0], email }; try { localStorage.setItem('white-demo-user', JSON.stringify(u)); } catch (_) {} return { ok: true }; },
+      async signOut() { try { localStorage.removeItem('white-demo-user'); } catch (_) {} },
+      async cancelBooking(id) { const b = bookings.find(x => x.id === id && x.status === 'pending'); if (b) { b.status = 'cancelled'; save(); } return { ok: true }; },
       async publicDevices() {
         const now = Date.now();
         return devices.map(d => ({ ...d, ...Core.deviceState(d.id, sessions, bookings, now) }));
@@ -53,6 +58,17 @@
     const ms = v => (v ? new Date(v).getTime() : null);
     return {
       mode: 'supabase', client: sb,
+      async currentUser() { const { data } = await sb.auth.getUser(); const u = data && data.user; return u ? { id: u.id, name: (u.user_metadata || {}).full_name || u.email, email: u.email } : null; },
+      async signUp({ name, email, password }) {
+        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name: name } } });
+        return error ? { ok: false, error: 'تعذر إنشاء الحساب. جرّب بريدًا آخر أو كلمة سر أقوى' } : { ok: true, needsConfirm: !data.session };
+      },
+      async signIn({ email, password }) {
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        return error ? { ok: false, error: 'البريد أو كلمة السر غير صحيحة' } : { ok: true };
+      },
+      async signOut() { await sb.auth.signOut(); },
+      async cancelBooking(id) { const { error } = await sb.rpc('cancel_my_booking', { p_id: id }); return { ok: !error }; },
       async publicDevices() {
         const { data, error } = await sb.from('device_status').select('*');
         if (error) throw error;
