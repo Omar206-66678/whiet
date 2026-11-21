@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EAF4FA">
+<title>White | بلايستيشن وكافيه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">White</div>
+  <button class="icon-btn" id="themeBtn" aria-label="تبديل الوضع الداكن">◐</button>
+</header>
+
+<main id="app">
+
+  <!-- الرئيسية -->
+  <section class="view is-active" data-view="home">
+    <div class="hero card">
+      <h1>White</h1>
+      <p>بلايستيشن وكافيه. شوف الأجهزة المتاحة الآن واحجز موعدك من مكانك.</p>
+      <button class="btn" data-go="devices">استكشف الأجهزة</button>
+    </div>
+
+    <div class="quick">
+      <button class="quick-item" data-go="devices"><span class="q-ico">🎮</span>الأجهزة المتاحة</button>
+      <button class="quick-item" data-go="devices"><span class="q-ico">🗓</span>حجز جهاز</button>
+      <button class="quick-item" data-go="menu"><span class="q-ico">☕</span>المنيو</button>
+      <button class="quick-item" data-go="account"><span class="q-ico">🧾</span>حجوزاتي</button>
+    </div>
+
+    <h2 class="sec-title">الجلسة القادمة</h2>
+    <div class="card empty">
+      <p>لا توجد حجوزات بعد. اختر جهازًا متاحًا لتبدأ.</p>
+    </div>
+  </section>
+
+  <!-- الأجهزة -->
+  <section class="view" data-view="devices">
+    <h2 class="sec-title">حالة الأجهزة الآن</h2>
+    <div class="legend" id="legend"></div>
+    <div id="deviceList" class="list"></div>
+    <p class="note">بيانات تجريبية في المرحلة الأولى. الحالة الحية تُربط في المرحلة الخامسة.</p>
+  </section>
+
+  <!-- المنيو -->
+  <section class="view" data-view="menu">
+    <h2 class="sec-title">منيو الكافيه</h2>
+    <div id="menuList" class="list"></div>
+  </section>
+
+  <!-- حسابي -->
+  <section class="view" data-view="account">
+    <h2 class="sec-title">حسابي</h2>
+    <div class="card empty">
+      <p>تسجيل الدخول وإنشاء الحساب وحجوزاتك تُبنى في المرحلة الثالثة.</p>
+    </div>
+  </section>
+
+</main>
+
+<nav class="bottomnav" aria-label="التنقل الرئيسي">
+  <button class="nav-item is-active" data-go="home"><span>⌂</span>الرئيسية</button>
+  <button class="nav-item" data-go="devices"><span>🎮</span>الأجهزة</button>
+  <button class="nav-item" data-go="menu"><span>☕</span>المنيو</button>
+  <button class="nav-item" data-go="account"><span>👤</span>حسابي</button>
+</nav>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
