@@ -10,6 +10,7 @@
   const dateTxt = t => new Date(t).toLocaleDateString(C.locale, { weekday: 'long', day: 'numeric', month: 'long' });
   const dayKey = i => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() + i).getTime(); };
 
+  const ic = n => window.WhiteUI.icon(n);
   const MAIN = ['home', 'devices', 'menu', 'account'];
   const TITLES = { home: 'White', devices: 'الأجهزة', menu: 'المنيو', account: 'حسابي', detail: 'تفاصيل الجهاز', booking: 'حجز جهاز' };
   const st = { view: 'home', stack: [], user: null, bookings: [], devices: [], cat: 'all', mcat: 'all',
@@ -58,23 +59,23 @@
     const next = st.bookings.filter(b => ['pending', 'confirmed'].includes(b.status) && b.ends_at > Date.now())
       .sort((a, b) => a.starts_at - b.starts_at)[0];
     $('[data-view="home"]').innerHTML = `
-      <div class="glass hero">
+      <div class="glass hero" data-tilt>
         <div class="hero-text"><h2>العب براحتك،<br><span>احجز من مكانك</span></h2>
           <p>شوف الأجهزة المتاحة الآن واختر موعدك.</p>
           <button class="btn-sm" data-go="devices">احجز جهازك</button></div>
-        <svg class="pad-hero" viewBox="0 0 120 80"><use href="#pad"/></svg>
+        <svg class="pad-hero" viewBox="0 0 160 110" aria-hidden="true"><use href="#pad"/></svg>
       </div>
       <div class="quick">
-        <button class="tile" data-go="devices"><span class="ico">🎮</span>الأجهزة المتاحة</button>
-        <button class="tile" data-go="devices"><span class="ico">🗓</span>حجز جهاز</button>
-        <button class="tile" data-go="menu"><span class="ico">☕</span>المنيو</button>
-        <button class="tile" data-go="account"><span class="ico">🧾</span>حجوزاتي</button>
+        <button class="tile" data-go="devices"><span class="ico">${ic('gamepad')}</span>الأجهزة المتاحة</button>
+        <button class="tile" data-go="devices"><span class="ico">${ic('calendar')}</span>حجز جهاز</button>
+        <button class="tile" data-go="menu"><span class="ico">${ic('coffee')}</span>المنيو</button>
+        <button class="tile" data-go="account"><span class="ico">${ic('receipt')}</span>حجوزاتي</button>
       </div>
       <div class="sec-title">الجلسة القادمة <button class="link" data-go="account">عرض الكل</button></div>
       ${next ? bookingCard(next, false) : '<div class="glass empty">لا توجد حجوزات قادمة. اختر جهازًا لتبدأ.</div>'}
       <div class="sec-title">الفئات</div>
       <div class="cats">${cats.map(c => { const n = st.devices.filter(d => d.category === c && d.state === 'available').length;
-        return `<button class="tile" data-cat="${esc(c)}"><span class="ico">🎮</span>${esc(c)}<small>${n} متاح</small></button>`; }).join('')}</div>`;
+        return `<button class="tile" data-cat="${esc(c)}"><span class="ico">${ic('gamepad')}</span>${esc(c)}<small>${n} متاح</small></button>`; }).join('')}</div>`;
   }
 
   // ---------- الأجهزة ----------
@@ -86,9 +87,11 @@
       <div class="filters">${cats.map(c => `<button class="fchip ${st.cat === c ? 'on' : ''}" data-cat="${esc(c)}">${c === 'all' ? 'الكل' : esc(c)}</button>`).join('')}</div>
       <div class="list">${list.map(d => `
         <article class="glass item device s-${esc(d.state)}">
-          <div class="item-head"><div><div class="item-name">${esc(d.name)}</div><div class="item-sub">${esc(d.category)}</div></div>
-            <div class="item-price">${money(d.price_hour)} <small>للساعة</small></div></div>
-          <div class="row">${chip(d.state)}</div>
+          <div class="dev-row">
+            <div class="dev-ico">${ic('gamepad')}</div>
+            <div class="dev-main"><div class="item-name">${esc(d.name)}</div><div class="item-sub">${esc(d.category)}</div><div class="row">${chip(d.state)}</div></div>
+            <div class="item-price">${money(d.price_hour)} <small>للساعة</small></div>
+          </div>
           <div class="time-line">${esc(timeLine(d))}</div>
           <div class="row"><button class="btn-sm" data-dev="${esc(d.id)}">التفاصيل والحجز</button></div>
         </article>`).join('') || '<div class="glass empty">لا توجد أجهزة في هذه الفئة.</div>'}</div>
@@ -101,7 +104,7 @@
     const avail = d.state === 'available' ? 'الآن' : d.state === 'booked' ? clock(d.endsAt) : 'غير محدد';
     $('[data-view="detail"]').innerHTML = `
       <h2 class="d-title">${esc(d.name)}</h2><p class="d-sub">${esc(d.category)}</p>
-      <div class="glass bubble"><svg viewBox="0 0 120 80"><use href="#pad"/></svg></div>
+      <div class="glass bubble" data-tilt><svg viewBox="0 0 160 110" aria-hidden="true"><use href="#pad"/></svg></div>
       <div class="glass stats">
         <div><small>سعر الساعة</small><b>${esc(money(d.price_hour))}</b></div>
         <div><small>الحالة</small><b>${esc(label(d.state))}</b></div>
