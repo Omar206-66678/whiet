@@ -40,14 +40,7 @@
     .filter(([k]) => ['available', 'booked', 'open', 'pending'].includes(k))
     .map(([k, v]) => `<span class="chip s-${k}">${esc(v)}</span>`).join('');
 
-  // ---- بيانات تجريبية (تُستبدل بالبيانات الحية في المرحلة 5) ----
-  const H = 3600e3, now = Date.now();
-  const devices = [
-    { name: 'PS5 - غرفة 1', cat: 'PS5', price: 40, unit: 'للساعة', state: 'available' },
-    { name: 'PS5 - غرفة 2', cat: 'PS5', price: 40, unit: 'للساعة', state: 'booked', hours: 2, endsAt: now + 1.5 * H },
-    { name: 'PS4 - جهاز 3', cat: 'PS4', price: 25, unit: 'للساعة', state: 'open' },
-    { name: 'غرفة VIP', cat: 'VIP', price: 70, unit: 'للساعة', state: 'available' }
-  ];
+  // ---- الأجهزة من طبقة البيانات (حية كل 30 ثانية) ----
   const menu = [
     { name: 'قهوة تركي', desc: 'سادة أو مظبوط', cat: 'مشروبات ساخنة', price: 35 },
     { name: 'آيس لاتيه', desc: 'إسبريسو مع حليب مثلج', cat: 'مشروبات باردة', price: 55 },
@@ -57,21 +50,27 @@
 
   function timeLine(d) {
     if (d.state === 'available') return 'جاهز للحجز الآن';
-    if (d.state === 'booked') return `محجوز ${d.hours} ساعة، ويفضى الساعة ${clock(new Date(d.endsAt))}`;
+    if (d.state === 'booked') return (d.hours ? `محجوز ${d.hours} ساعة، و` : 'محجوز، و') + `يفضى الساعة ${clock(new Date(d.endsAt))}`;
     if (d.state === 'open') return 'محجوز مفتوح، بدون وقت انتهاء محدد';
     return '';
   }
 
-  $('#deviceList').innerHTML = devices.map(d => `
-    <article class="card item device s-${d.state}">
-      <div class="item-head">
-        <div><div class="item-name">${esc(d.name)}</div><div class="item-sub">${esc(d.cat)}</div></div>
-        <div class="item-price">${money(d.price)} <small>${esc(d.unit)}</small></div>
-      </div>
-      <div><span class="chip s-${d.state}">${esc(C.statuses[d.state])}</span></div>
-      <div class="time-line">${esc(timeLine(d))}</div>
-      ${d.state === 'available' ? '<button class="btn" data-book="' + esc(d.name) + '">احجز الآن</button>' : ''}
-    </article>`).join('');
+  async function renderDevices() {
+    try {
+      const list = await window.WhiteStore.publicDevices();
+      $('#deviceList').innerHTML = list.map(d => `
+        <article class="card item device s-${esc(d.state)}">
+          <div class="item-head">
+            <div><div class="item-name">${esc(d.name)}</div><div class="item-sub">${esc(d.category)}</div></div>
+            <div class="item-price">${money(d.price_hour)} <small>للساعة</small></div>
+          </div>
+          <div><span class="chip s-${esc(d.state)}">${esc(C.statuses[d.state])}</span></div>
+          <div class="time-line">${esc(timeLine(d))}</div>
+          ${d.state === 'available' ? '<button class="btn" data-book="' + esc(d.id) + '">احجز الآن</button>' : ''}
+        </article>`).join('');
+    } catch (_) { toast('تعذر تحميل حالة الأجهزة'); }
+  }
+  renderDevices(); setInterval(renderDevices, 30000);
 
   $('#menuList').innerHTML = menu.map(m => `
     <article class="card item">
