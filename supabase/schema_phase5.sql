@@ -42,4 +42,4 @@ create index if not exists invoices_paid_idx on invoices (paid_at desc);
 create index if not exists expenses_spent_idx on expenses (spent_at desc);
 
 -- 4) منع المستخدم العادي من قراءة أي شيء بالخطأ: تأكيد أن الجداول الحساسة بلا صلاحيات لـ anon
-revoke all on profiles, devices, bookings, sessions, session_items, invoices, expenses from anon;
+revoke all on profiles, devices, bookings, sessions, session_items, cafe_orders, cafe_order_items, invoices, expenses from anon;
