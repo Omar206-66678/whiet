@@ -5,6 +5,11 @@ window.WHITE_CONFIG = {
   locale: 'ar-EG',
   // المرحلة 5: ربط Supabase أو Firebase (المفتاح العام anon فقط، والأمان من قواعد الوصول RLS)
   backend: { provider: null, url: '', anonKey: '' },
+  // قواعد الحساب (عدّلها حسب سياستك): تقريب الوقت لأعلى لأقرب 15 دقيقة، والجلسة المحددة تتحاسب على الأقل بمدتها المحجوزة
+  passwordMin: 6,
+  roles: { owner: 'المالك', cashier: 'كاشير', customer: 'عميل' },
+  billing: { stepMin: 15, minMinutes: 15 },
+  dayStartHour: 6, // بداية يوم العمل لحسابات اليوم
   booking: { minHours: 1, maxHours: 6, stepMin: 30, leadMin: 15 },
   // حالات الأجهزة الموحدة. مصدر واحد للألوان والنصوص في كل الشاشات
   statuses: {
@@ -26,7 +31,7 @@ window.WHITE_CONFIG = {
     PS4: 'جهاز بلايستيشن 4 بسعر اقتصادي.',
     VIP: 'غرفة خاصة لمجموعتك.'
   },
-  // المنيو (تجريبي)
+  // المنيو الابتدائي (للتجربة ولأول تعبئة). بعد كده المالك بيديره من لوحة الإدارة
   menu: [
     { name: 'قهوة تركي', desc: 'سادة أو مظبوط', cat: 'مشروبات ساخنة', price: 35 },
     { name: 'شاي', desc: 'كوب شاي', cat: 'مشروبات ساخنة', price: 20 },

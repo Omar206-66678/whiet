@@ -14,7 +14,7 @@
   const MAIN = ['home', 'devices', 'menu', 'account'];
   const TITLES = { home: 'White', devices: 'الأجهزة', menu: 'المنيو', account: 'حسابي', detail: 'تفاصيل الجهاز', booking: 'حجز جهاز' };
   const st = { view: 'home', stack: [], user: null, bookings: [], devices: [], cat: 'all', mcat: 'all',
-    dev: null, book: { day: 0, hours: 1, start: null }, slots: null, authMode: 'login', afterLogin: false, busy: false };
+    menu: [], dev: null, book: { day: 0, hours: 1, start: null }, slots: null, authMode: 'login', afterLogin: false, busy: false };
 
   // ---------- أدوات ----------
   let tt;
@@ -165,11 +165,11 @@
 
   // ---------- المنيو ----------
   function renderMenu() {
-    const cats = ['all', ...new Set(C.menu.map(m => m.cat))];
+    const cats = ['all', ...new Set(st.menu.map(m => m.cat))];
     $('[data-view="menu"]').innerHTML = `
       <div class="sec-title">منيو الكافيه</div>
       <div class="filters">${cats.map(c => `<button class="fchip ${st.mcat === c ? 'on' : ''}" data-mcat="${esc(c)}">${c === 'all' ? 'الكل' : esc(c)}</button>`).join('')}</div>
-      <div class="list">${C.menu.filter(m => st.mcat === 'all' || m.cat === st.mcat).map(m => `
+      <div class="list">${st.menu.filter(m => st.mcat === 'all' || m.cat === st.mcat).map(m => `
         <article class="glass item"><div class="item-head"><div><div class="item-name">${esc(m.name)}</div>
         <div class="item-sub">${esc(m.desc)}</div></div><div class="item-price">${esc(money(m.price))}</div></div></article>`).join('')}</div>`;
   }
@@ -184,17 +184,17 @@
         <div class="seg"><button class="${su ? '' : 'on'}" data-auth="login">دخول</button><button class="${su ? 'on' : ''}" data-auth="signup">حساب جديد</button></div>
         <form class="glass form" id="authForm" novalidate>
           ${su ? '<label>الاسم<input name="name" autocomplete="name" required></label>' : ''}
-          <label>البريد الإلكتروني<input name="email" type="email" dir="ltr" autocomplete="email" required></label>
-          <label>كلمة السر<input name="password" type="password" dir="ltr" autocomplete="${su ? 'new-password' : 'current-password'}" minlength="8" required></label>
+          <label>رقم الهاتف<input name="phone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel" placeholder="01XXXXXXXXX" required></label>
+          <label>كلمة السر<input name="password" type="password" dir="ltr" autocomplete="${su ? 'new-password' : 'current-password'}" minlength="${C.passwordMin}" required></label>
           <div class="err" id="authErr"></div>
           <button class="btn-primary" type="submit">${su ? 'إنشاء الحساب' : 'دخول'}</button>
         </form>
-        ${S.mode === 'demo' ? '<p class="note">وضع تجريبي: الدخول هنا محلي على جهازك فقط.</p>' : ''}`;
+        ${S.mode === 'demo' ? '<p class="note">وضع تجريبي: البيانات محلية على جهازك. حسابات تجريبية بكلمة السر 123456: المالك 01000000000، الكاشير 01000000001.</p>' : ''}`;
       return;
     }
     const groups = [['pending', 'بانتظار الموافقة'], ['confirmed', 'مؤكدة'], ['rejected', 'مرفوضة'], ['cancelled', 'ملغية'], ['completed', 'مكتملة']];
     el.innerHTML = `
-      <div class="glass who"><div><div class="item-name">${esc(st.user.name)}</div><div class="item-sub" dir="ltr">${esc(st.user.email)}</div></div>
+      <div class="glass who"><div><div class="item-name">${esc(st.user.name)}</div><div class="item-sub" dir="ltr" style="text-align:right">${esc(st.user.phone)}</div></div>
         <button class="btn-ghost" data-logout>تسجيل الخروج</button></div>
       <div class="sec-title">حجوزاتي</div>
       ${st.bookings.length ? groups.map(([k, t]) => { const l = st.bookings.filter(b => b.status === k);
@@ -202,28 +202,41 @@
         : '<div class="glass empty">لا توجد حجوزات بعد.</div>'}`;
   }
   async function submitAuth(form) {
-    const f = new FormData(form), name = (f.get('name') || '').trim(), email = (f.get('email') || '').trim(), password = f.get('password') || '';
+    const f = new FormData(form), name = (f.get('name') || '').trim(), phone = window.WhitePhone.normalize(f.get('phone')), password = f.get('password') || '';
     const err = m => { $('#authErr').textContent = m; };
-    if (st.authMode === 'signup' && !name) return err('اكتب اسمك');
-    if (!/^\S+@\S+\.\S+$/.test(email)) return err('اكتب بريدًا إلكترونيًا صحيحًا');
-    if (password.length < 8) return err('كلمة السر 8 حروف على الأقل');
+    if (st.authMode === 'signup' && name.length < 2) return err('اكتب اسمك');
+    if (!window.WhitePhone.valid(phone)) return err('اكتب رقم هاتف صحيح');
+    if (password.length < C.passwordMin) return err('كلمة السر ' + C.passwordMin + ' حروف على الأقل');
     if (st.busy) return; st.busy = true;
-    const r = st.authMode === 'signup' ? await S.signUp({ name, email, password }) : await S.signIn({ email, password });
+    const r = st.authMode === 'signup' ? await S.signUp({ name, phone, password }) : await S.signIn({ phone, password });
     st.busy = false;
     if (!r.ok) return err(r.error || 'تعذر تنفيذ الطلب');
-    if (r.needsConfirm) { toast('تم إنشاء الحساب. أكّد بريدك ثم سجّل الدخول'); st.authMode = 'login'; return renderAccount(); }
+    st.authMode = 'login';
     await refreshUser();
+    if (isStaff(st.user)) return enterStaff();
     if (st.afterLogin) { st.afterLogin = false; st.stack = ['detail']; show('booking'); } else { toast('أهلًا بيك'); show('account'); }
+  }
+
+  // ---------- لوحة الموظفين: لا تُحمَّل إلا بعد التحقق من الدور ----------
+  const isStaff = u => !!u && ['cashier', 'owner'].includes(u.role);
+  const load = (tag, props) => new Promise((res, rej) => { const el = document.createElement(tag); Object.assign(el, props, { onload: res, onerror: rej }); document.head.appendChild(el); });
+  async function enterStaff() {
+    try { await load('link', { rel: 'stylesheet', href: 'staff/staff.css' }); for (const src of ['js/core/billing.js', 'js/data/staff-store.js', 'staff/staff.js']) await load('script', { src }); }
+    catch (_) { return toast('تعذر تحميل لوحة الموظفين'); }
+    window.WhiteStaffApp.mount(st.user);
   }
 
   // ---------- بيانات ----------
   async function refreshUser() {
     try { st.user = await S.currentUser(); st.bookings = st.user ? await S.myBookings() : []; } catch (_) { st.user = null; st.bookings = []; }
   }
+  async function loadMenu() { try { st.menu = await S.menu(); } catch (_) {} }
   async function loadDevices() {
+    if (document.body.classList.contains('is-staff')) return;
     try { st.devices = await S.publicDevices(); } catch (_) { return toast('تعذر تحميل حالة الأجهزة'); }
     if (st.dev) st.dev = st.devices.find(d => d.id === st.dev.id) || st.dev;
-    if (['home', 'devices', 'detail'].includes(st.view)) render(st.view);
+    await loadMenu();
+    if (['home', 'devices', 'detail', 'menu'].includes(st.view)) render(st.view);
   }
 
   // ---------- الأحداث ----------
@@ -240,7 +253,7 @@
     if (d.slot) { st.book.start = +d.slot; $$('.slot').forEach(s => s.classList.toggle('on', s === t)); $('#range').textContent = `من ${clock(st.book.start)} إلى ${clock(st.book.start + st.book.hours * H)}`; $('#confirmBtn').disabled = false; return; }
     if ('confirm' in d) return confirmBooking();
     if (d.auth) { st.authMode = d.auth; return renderAccount(); }
-    if ('logout' in d) { await S.signOut(); await refreshUser(); return renderAccount(); }
+    if ('logout' in d) { await S.signOut(); st.authMode = 'login'; await refreshUser(); return renderAccount(); }
     if (d.cancel) { const r = await S.cancelBooking(d.cancel); toast(r.ok ? 'تم إلغاء الطلب' : 'تعذر إلغاء الطلب'); await refreshUser(); return renderAccount(); }
   });
   document.addEventListener('submit', e => { if (e.target.id === 'authForm') { e.preventDefault(); submitAuth(e.target); } });
@@ -262,5 +275,5 @@
   $('#splashLogin').addEventListener('click', () => { closeSplash(); st.authMode = 'login'; go('account'); });
 
   // بداية التشغيل
-  (async () => { await refreshUser(); await loadDevices(); show('home'); setInterval(loadDevices, 30000); })();
+  (async () => { await refreshUser(); if (isStaff(st.user)) { closeSplash(); return enterStaff(); } await loadDevices(); show('home'); setInterval(loadDevices, 30000); })();
 })();
