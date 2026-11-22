@@ -24,6 +24,7 @@
       },
       async signOut() { try { localStorage.removeItem(SES); } catch (_) {} },
       async menu() { return DB.reload().menu.filter(m => m.active); },
+      async categories() { return DB.reload().categories.map(c => ({ ...c })); },
       async publicDevices() {
         const db = DB.reload(), now = Date.now();
         return db.devices.filter(d => d.active !== false).map(d => ({ ...d, ...Core.deviceState(d.id, db.sessions, db.bookings, now) }));
@@ -66,6 +67,7 @@
         const { data, error } = await sb.from('menu_items').select('*').eq('active', true).order('category'); if (error) throw error;
         return data.map(m => ({ id: m.id, name: m.name, desc: m.description, cat: m.category, price: Number(m.price), active: true }));
       },
+      async categories() { const { data, error } = await sb.from('categories').select('*'); if (error) throw error; return data; },
       async publicDevices() {
         const { data, error } = await sb.from('device_status').select('*'); if (error) throw error;
         return data.map(d => ({ id: d.id, name: d.name, category: d.category, price_hour: Number(d.price_hour), state: d.state, endsAt: ms(d.busy_until), hours: null }));
@@ -91,7 +93,7 @@
 
   function brokenAdapter() {
     const no = { ok: false, error: 'تعذر الاتصال بالخادم' }, fail = async () => { throw new Error('supabase unavailable'); };
-    return { mode: 'broken', currentUser: async () => null, signIn: async () => no, signUp: async () => no, signOut: async () => {}, menu: fail, publicDevices: fail, publicSlots: fail, requestBooking: async () => no, myBookings: async () => [], cancelBooking: async () => no };
+    return { mode: 'broken', currentUser: async () => null, signIn: async () => no, signUp: async () => no, signOut: async () => {}, menu: fail, categories: fail, publicDevices: fail, publicSlots: fail, requestBooking: async () => no, myBookings: async () => [], cancelBooking: async () => no };
   }
   g.WhiteStore = C.backend.provider !== 'supabase' ? demoAdapter() : (g.supabase && C.backend.url && C.backend.anonKey) ? supabaseAdapter() : brokenAdapter();
 })(window);

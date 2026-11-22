@@ -1,7 +1,7 @@
 // White — قاعدة بيانات تجريبية محلية (نفس المتصفح فقط). في الإنتاج بنستخدم Supabase
 (function (g) {
   'use strict';
-  const KEY = 'white-demo-db-v3', C = g.WHITE_CONFIG;
+  const KEY = 'white-demo-db-v4', C = g.WHITE_CONFIG;
   const seed = () => ({
     devices: [
       { id: 'd1', name: 'PS5 - غرفة 1', category: 'PS5', price_hour: 40, active: true },
@@ -15,9 +15,13 @@
       { id: 'u-owner', name: 'المالك', phone: '01000000000', role: 'owner', pw: null },
       { id: 'u-cashier', name: 'الكاشير', phone: '01000000001', role: 'cashier', pw: null }
     ],
-    sessions: [], items: [], bookings: [], invoices: [], expenses: []
+    categories: [
+      ...Object.entries(C.categories).map(([name, description], i) => ({ id: 'cd' + i, kind: 'device', name, description })),
+      ...[...new Set(C.menu.map(m => m.cat))].map((name, i) => ({ id: 'cm' + i, kind: 'menu', name, description: '' }))
+    ],
+    sessions: [], items: [], cafeOrders: [], cafeItems: [], bookings: [], invoices: [], expenses: []
   });
-  const load = () => { try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && d.devices && d.users) return d; } catch (_) {} return seed(); };
+  const load = () => { try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && d.devices && d.users && d.cafeOrders) return d; } catch (_) {} return seed(); };
   let db = load();
   g.WhiteDemoDB = {
     get: () => db, reload: () => (db = load()),
