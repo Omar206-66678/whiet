@@ -1,5 +1,5 @@
 /* White — لوحة الموظفين (تُحمَّل فقط بعد التحقق من الدور) */
-#staffMain{max-width:1000px;margin:0 auto;padding:6px 16px calc(var(--nav-h) + 40px + env(safe-area-inset-bottom,0px))}
+#staffMain{max-width:1000px;margin:0 auto;overflow-x:clip;padding:6px 16px calc(var(--nav-h) + 40px + env(safe-area-inset-bottom,0px))}
 .rolebar{max-width:1000px;margin:0 auto;padding:0 16px 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .rolebar .who-name{font-weight:800}
 .role-owner{--c:var(--primary)}.role-cashier{--c:var(--st-booked)}
@@ -20,7 +20,6 @@
 .stat.net{grid-column:1/-1;background:linear-gradient(155deg,#F8DD97,#D8A042);color:var(--honey-ink)}.stat.net small{color:rgba(43,26,8,.7)}
 .line{display:flex;justify-content:space-between;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line);font-weight:600}
 .line:last-child{border:0}.line span:last-child{font-variant-numeric:tabular-nums;font-weight:800}
-.formrow{display:grid;grid-template-columns:1fr 130px auto;gap:10px;align-items:end;padding:16px}
 .sheet-bg{position:fixed;inset:0;z-index:70;background:rgba(30,18,5,.55);display:grid;align-items:end;backdrop-filter:blur(4px)}
 .sheet{max-width:560px;width:100%;margin:0 auto;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));border-radius:30px 30px 0 0;animation:rise .25s ease-out;max-height:86vh;overflow:auto}
 .sheet h3{font-size:1.2rem;margin-bottom:14px}
@@ -31,4 +30,43 @@
 .opt:active{transform:translateY(2px)}
 .chk{display:flex!important;grid-auto-flow:column;align-items:center;gap:10px}
 .chk input{width:22px;height:22px;padding:0}
-@media (max-width:520px){.formrow{grid-template-columns:1fr 1fr}.formrow button{grid-column:1/-1}}
+
+/* ترتيب وضبط (يمنع أي تمدد أفقي) */
+#staffRoot .topbar{background:color-mix(in srgb,var(--bg1) 94%,transparent);backdrop-filter:blur(10px)}
+#staffRoot *{min-width:0}
+.small{font-size:.85rem;font-weight:600}
+.ltr{direction:ltr;text-align:right}
+.items-line{line-height:1.8}
+.dgrid>*{min-width:0}
+.seg.n4{grid-template-columns:repeat(4,1fr)}.seg.n4 button{font-size:.85rem;padding:10px 4px}
+.list-card{padding:6px 14px}
+.list-card .empty{padding:18px 4px}
+.sec-mini{font-weight:800;margin:14px 2px 8px;font-size:.95rem}
+.total-line{border-top:2px solid var(--line);margin-top:6px;font-size:1.05rem}
+.total-line span:last-child{color:var(--primary);font-size:1.25rem}
+.inv{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;padding:14px 4px;border-bottom:1px solid var(--line);text-align:start}
+.inv:last-child{border:0}
+.inv-main{display:grid;gap:2px}.inv-main small{color:var(--muted);font-weight:600}
+.inv-amt{font-weight:800;font-variant-numeric:tabular-nums;color:var(--primary);white-space:nowrap}
+.inv-amt::after{content:"‹";margin-inline-start:10px;color:var(--muted);font-weight:400}
+.inv:active{background:rgba(216,160,66,.12)}
+
+/* مُحدّد المدة */
+.stepper{display:grid;grid-template-columns:64px 1fr 64px;gap:12px;align-items:center;margin:6px 0 14px}
+.step{height:64px;border-radius:20px;font-size:2rem;font-weight:800;line-height:1;background:linear-gradient(180deg,var(--honey-1),var(--honey-2));color:var(--honey-ink);
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 -3px 0 rgba(140,85,15,.30) inset,0 8px 16px rgba(185,119,42,.35)}
+.step:active{transform:translateY(2px)}.step:disabled{opacity:.35;box-shadow:none}
+.step-val{text-align:center;display:grid;gap:4px}.step-val b{font-size:1.45rem}.step-val small{color:var(--muted);font-weight:600}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+
+/* أصناف الكافيه */
+.ilist{display:grid;gap:8px}
+.irow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-md);background:rgba(216,160,66,.12);border:1px solid var(--line)}
+.iname{display:grid;gap:2px}.iname small{color:var(--muted);font-weight:600}
+.qty{display:flex;align-items:center;gap:10px;font-weight:800;font-variant-numeric:tabular-nums}
+.qbtn{width:40px;height:40px;border-radius:50%;font-size:1.4rem;font-weight:800;line-height:1;background:linear-gradient(165deg,var(--card-top),var(--card-bot));border:1px solid var(--edge);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 4px 10px rgba(90,60,20,.15)}
+.qbtn:active{transform:translateY(2px)}
+.opt{position:relative}
+.cnt{position:absolute;top:-8px;inset-inline-start:-6px;box-shadow:0 2px 6px rgba(0,0,0,.25);min-width:22px;height:22px;padding:0 6px;border-radius:999px;display:grid;place-items:center;background:var(--primary);color:#fff;font-size:.75rem;font-weight:800}
+.sheet h3 .i{margin-inline-end:6px;color:var(--primary)}
+.btn-sm:disabled{opacity:.4;box-shadow:none}
