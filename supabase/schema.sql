@@ -6,8 +6,9 @@ create type booking_status as enum ('pending','confirmed','rejected','cancelled'
 
 create table profiles (
   id uuid primary key references auth.users on delete cascade,
-  full_name text, phone text,
-  role text not null default 'customer' check (role in ('customer','cashier','admin')),
+  full_name text,
+  phone text unique,                 -- رقم الهاتف (مفتاح الدخول)
+  role text not null default 'customer' check (role in ('customer','cashier','owner')),
   created_at timestamptz not null default now()
 );
 
@@ -45,10 +46,12 @@ create unique index one_active_session_per_device on sessions(device_id) where e
 
 -- أدوار
 create function is_staff() returns boolean language sql stable security definer set search_path = public as
-$$ select exists (select 1 from profiles where id = auth.uid() and role in ('cashier','admin')) $$;
+$$ select exists (select 1 from profiles where id = auth.uid() and role in ('cashier','owner')) $$;
+create function is_owner() returns boolean language sql stable security definer set search_path = public as
+$$ select exists (select 1 from profiles where id = auth.uid() and role = 'owner') $$;
 
 create function handle_new_user() returns trigger language plpgsql security definer set search_path = public as
-$$ begin insert into profiles (id, full_name) values (new.id, new.raw_user_meta_data->>'full_name'); return new; end $$;
+$$ begin insert into profiles (id, full_name, phone) values (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'phone'); return new; end $$;
 create trigger on_auth_user_created after insert on auth.users for each row execute function handle_new_user();
 
 -- الواجهات العامة: حالة الأجهزة والمواعيد المحجوزة بدون أي بيانات عملاء أو أموال
@@ -77,7 +80,7 @@ alter table bookings enable row level security;
 alter table sessions enable row level security;
 
 create policy devices_read   on devices  for select using (active or is_staff());
-create policy devices_staff  on devices  for all    using (is_staff()) with check (is_staff());
+create policy devices_owner  on devices  for all    using (is_owner()) with check (is_owner());   -- الأجهزة والأسعار للمالك فقط
 
 create policy bookings_read   on bookings for select using (customer_id = auth.uid() or is_staff());
 create policy bookings_insert on bookings for insert with check (customer_id = auth.uid() and status = 'pending' and starts_at > now());
@@ -88,11 +91,11 @@ create policy sessions_staff on sessions for all using (is_staff()) with check (
 create policy profiles_read   on profiles for select using (id = auth.uid() or is_staff());
 create policy profiles_update on profiles for update using (id = auth.uid()) with check (id = auth.uid());
 revoke update on profiles from authenticated;
-grant  update (full_name, phone) on profiles to authenticated;   -- الدور (role) لا يتغير من التطبيق أبدًا
+grant  update (full_name) on profiles to authenticated;   -- الدور (role) والهاتف لا يتغيران من التطبيق أبدًا
 
 -- إلغاء العميل لحجزه المعلّق فقط
 create function cancel_my_booking(p_id uuid) returns void language sql security definer set search_path = public as
 $$ update bookings set status = 'cancelled' where id = p_id and customer_id = auth.uid() and status = 'pending' $$;
 
 -- لترقية حساب إلى كاشير/إدارة (من SQL Editor فقط):
--- update profiles set role = 'admin' where id = '<USER_ID>';
+-- لترقية أول مالك (مرة واحدة): update profiles set role = 'owner' where phone = '01XXXXXXXXX';

@@ -30,8 +30,9 @@ alter table session_items enable row level security;
 alter table invoices      enable row level security;
 alter table expenses      enable row level security;
 create policy items_staff    on session_items for all using (is_staff()) with check (is_staff());
-create policy invoices_staff on invoices      for all using (is_staff()) with check (is_staff());
-create policy expenses_staff on expenses      for all using (is_staff()) with check (is_staff());
+-- الفواتير والمصروفات (الأرباح) للمالك فقط. الكاشير يصدر الفاتورة عبر close_session ولا يقرأ الحسابات
+create policy invoices_owner on invoices      for select using (is_owner());
+create policy expenses_owner on expenses      for all using (is_owner()) with check (is_owner());
 
 -- قفل الجلسة وإصدار الفاتورة داخل قاعدة البيانات (الحساب لا يعتمد على المتصفح)
 create function close_session(p_session uuid, p_step int default 15, p_min int default 15)
@@ -54,3 +55,28 @@ begin
 end $$;
 revoke all on function close_session(uuid, int, int) from public;
 grant execute on function close_session(uuid, int, int) to authenticated;
+
+-- المنيو: يقرأه الجميع (الأصناف الظاهرة)، ويعدّله المالك فقط
+create table menu_items (
+  id uuid primary key default gen_random_uuid(),
+  name text not null, description text not null default '', category text not null,
+  price numeric(8,2) not null check (price >= 0), active boolean not null default true
+);
+alter table menu_items enable row level security;
+create policy menu_read  on menu_items for select using (active or is_staff());
+create policy menu_owner on menu_items for all using (is_owner()) with check (is_owner());
+
+-- تعيين/إلغاء كاشير (للمالك فقط). المالك لا يُعيَّن إلا من SQL Editor
+create function set_role(p_phone text, p_role text) returns void
+language plpgsql security definer set search_path = public as $$
+declare t profiles;
+begin
+  if not is_owner() then raise exception 'للمالك فقط'; end if;
+  if p_role not in ('cashier','customer') then raise exception 'صلاحية غير مسموحة'; end if;
+  select * into t from profiles where phone = p_phone;
+  if not found then raise exception 'مفيش حساب بالرقم ده. لازم يسجّل كعميل الأول'; end if;
+  if t.id = auth.uid() or t.role = 'owner' then raise exception 'لا يمكن تغيير صلاحية المالك'; end if;
+  update profiles set role = p_role where id = t.id;
+end $$;
+revoke all on function set_role(text, text) from public;
+grant execute on function set_role(text, text) to authenticated;
