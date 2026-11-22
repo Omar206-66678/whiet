@@ -1,5 +1,5 @@
 // White — Service Worker: الشبكة أولًا (التحديثات تظهر فورًا)، والكاش احتياطي عند انقطاع الإنترنت
-const V = 'white-v2';
+const V = 'white-v3';
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(V).then(c => c.addAll(['./index.html', './css/app.css', './js/app.js'])).catch(() => {})); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
