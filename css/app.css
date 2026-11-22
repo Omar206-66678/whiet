@@ -188,4 +188,6 @@ button{cursor:pointer;border:0;background:none}
 .splash-sub{color:rgba(251,231,184,.75);line-height:1.8;margin-bottom:24px}
 .splash-login{margin-top:18px;font-size:.92rem}.splash-login .link{color:#F6D789}
 
+body.is-staff #custTop,body.is-staff #app,body.is-staff #bottomNav,body.is-staff #splash{display:none!important}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
