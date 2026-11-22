@@ -14,7 +14,7 @@
   const MAIN = ['home', 'devices', 'menu', 'account'];
   const TITLES = { home: 'White', devices: 'الأجهزة', menu: 'المنيو', account: 'حسابي', detail: 'تفاصيل الجهاز', booking: 'حجز جهاز' };
   const st = { view: 'home', stack: [], user: null, bookings: [], devices: [], cat: 'all', mcat: 'all',
-    menu: [], dev: null, book: { day: 0, hours: 1, start: null }, slots: null, authMode: 'login', afterLogin: false, busy: false };
+    menu: [], cats: [], dev: null, book: { day: 0, hours: 1, start: null }, slots: null, authMode: 'login', afterLogin: false, busy: false };
 
   // ---------- أدوات ----------
   let tt;
@@ -111,12 +111,13 @@
         <div><small>متاح من</small><b>${esc(avail)}</b></div>
       </div>
       <div class="glass about"><h3>عن الجهاز</h3>
-        <p>${esc(C.categories[d.category] || '')}</p>
+        <p>${esc(catDesc(d.category))}</p>
         <ul class="checks"><li>الحجز يتأكد بعد موافقة الكاشير</li><li>تشوف حالة طلبك مباشرة في حسابك</li><li>تقدر تلغي الطلب قبل الموافقة</li></ul></div>
       <button class="btn-primary" data-bookdev="${esc(d.id)}">احجز هذا الجهاز</button>`;
   }
 
   // ---------- الحجز ----------
+  const catDesc = n => { const c = st.cats.find(x => x.kind === 'device' && x.name === n); return c ? c.description : ''; };
   const DURS = [1, 1.5, 2, 3];
   function renderBooking() {
     const d = st.dev; if (!d) return go('devices');
@@ -230,7 +231,7 @@
   async function refreshUser() {
     try { st.user = await S.currentUser(); st.bookings = st.user ? await S.myBookings() : []; } catch (_) { st.user = null; st.bookings = []; }
   }
-  async function loadMenu() { try { st.menu = await S.menu(); } catch (_) {} }
+  async function loadMenu() { try { st.menu = await S.menu(); st.cats = await S.categories(); } catch (_) {} }
   async function loadDevices() {
     if (document.body.classList.contains('is-staff')) return;
     try { st.devices = await S.publicDevices(); } catch (_) { return toast('تعذر تحميل حالة الأجهزة'); }
