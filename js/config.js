@@ -11,6 +11,8 @@ window.WHITE_CONFIG = {
   staffSession: { minHours: 1, maxHours: 10, stepHours: 0.5 },
   roles: { owner: 'المالك', cashier: 'كاشير', customer: 'عميل' },
   billing: { stepMin: 15, minMinutes: 15 },
+  timezone: 'Africa/Cairo', // لازم تطابق المنطقة الزمنية داخل schema_phase5/6.sql
+  requireShift: true,      // لازم الموظف يفتح شيفت قبل تحصيل أي فاتورة
   dayStartHour: 6, // بداية يوم العمل لحسابات اليوم
   booking: { minHours: 1, maxHours: 6, stepMin: 30, leadMin: 15 },
   // حالات الأجهزة الموحدة. مصدر واحد للألوان والنصوص في كل الشاشات

@@ -260,14 +260,6 @@
   document.addEventListener('submit', e => { if (e.target.id === 'authForm') { e.preventDefault(); submitAuth(e.target); } });
   $('#backBtn').addEventListener('click', back);
 
-  // الثيم
-  const root = document.documentElement;
-  try { root.dataset.theme = localStorage.getItem('white-theme') || 'light'; } catch (_) {}
-  $('#themeBtn').addEventListener('click', () => {
-    const n = root.dataset.theme === 'dark' ? 'light' : 'dark'; root.dataset.theme = n;
-    try { localStorage.setItem('white-theme', n); } catch (_) {}
-  });
-
   // شاشة الترحيب
   let seen = false; try { seen = !!localStorage.getItem('white-seen'); } catch (_) {}
   const closeSplash = () => { $('#splash').classList.add('hide'); try { localStorage.setItem('white-seen', '1'); } catch (_) {} };
