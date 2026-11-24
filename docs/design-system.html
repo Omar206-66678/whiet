@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F4F5F9">
+<title>White · Ember Design System</title>
+<script src="../js/ui/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/app.css">
+<link rel="stylesheet" href="../staff/staff.css">
+<style>
+  .ds{max-width:1040px;margin:0 auto;padding:20px 16px 80px}
+  .ds h1{font-size:var(--fs-3xl);font-weight:800;line-height:1.2;margin:18px 0 6px}
+  .ds .lead{color:var(--muted);max-width:60ch;line-height:1.9;margin-bottom:8px}
+  .sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .swatch{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background:var(--s1)}
+  .swatch i{display:block;height:64px}.swatch div{padding:8px 10px;font-size:var(--fs-xs);line-height:1.5}.swatch b{display:block;font-size:var(--fs-sm)}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+  .demo{padding:20px;display:grid;gap:14px;align-content:start}
+  .demo h3{font-size:var(--fs-md);color:var(--ink-2)}
+  .tok{display:block;unicode-bidi:isolate;font-family:ui-monospace,Menlo,monospace;font-size:.72rem;color:var(--muted);direction:ltr;text-align:left}
+  .icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+  .icons div{display:grid;gap:6px;justify-items:center;padding:14px 6px;border-radius:var(--r-md);background:var(--s1);border:1px solid var(--line);font-size:.68rem;color:var(--muted)}
+  .icons .i{width:26px;height:26px;color:var(--ink)}
+  .navdemo .bottomnav{position:static;margin:0}
+  .ds-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .scale div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}
+</style>
+</head>
+<body>
+<div class="ds">
+  <div class="ds-top"><span id="brand"></span><button class="icon-btn" data-theme-toggle></button></div>
+  <h1>Ember Design System</h1>
+  <p class="lead">نظام التصميم الخاص بـ White: ألوان وتوكنز ومكوّنات موحّدة لتطبيق العميل ولوحة المالك والكاشير. التعديل على الهوية بيتم من ملف <b class="tok">css/tokens.css</b> وبينعكس على كل التطبيق، في الثيمين الفاتح والداكن.</p>
+
+  <div class="sec-title"><span>الألوان</span></div>
+  <div class="sw" id="sw"></div>
+
+  <div class="sec-title"><span>الخطوط والمقاييس</span></div>
+  <div class="grid2">
+    <div class="glass demo scale"><h3>سُلّم الخط (Cairo)</h3>
+      <div><span style="font-size:var(--fs-3xl);font-weight:800">عنوان رئيسي</span><span class="tok">--fs-3xl</span></div>
+      <div><span style="font-size:var(--fs-2xl);font-weight:800">عنوان قسم</span><span class="tok">--fs-2xl</span></div>
+      <div><span style="font-size:var(--fs-xl);font-weight:800">عنوان فرعي</span><span class="tok">--fs-xl</span></div>
+      <div><span style="font-size:var(--fs-lg);font-weight:700">نص بارز</span><span class="tok">--fs-lg</span></div>
+      <div><span style="font-size:var(--fs-md)">النص الأساسي للقراءة</span><span class="tok">--fs-md</span></div>
+      <div><span style="font-size:var(--fs-sm);color:var(--muted)">نص ثانوي</span><span class="tok">--fs-sm</span></div>
+      <div><span style="font-family:var(--font-brand);font-weight:800;font-size:var(--fs-xl)">White 0123</span><span class="tok">--font-brand (Sora)</span></div>
+    </div>
+    <div class="glass demo"><h3>أنصاف الأقطار والارتفاعات</h3>
+      <div class="row" style="gap:12px">
+        <div style="width:64px;height:64px;background:var(--s2);border:1px solid var(--line);border-radius:var(--r-xs)"></div>
+        <div style="width:64px;height:64px;background:var(--s2);border:1px solid var(--line);border-radius:var(--r-sm)"></div>
+        <div style="width:64px;height:64px;background:var(--s2);border:1px solid var(--line);border-radius:var(--r-md)"></div>
+        <div style="width:64px;height:64px;background:var(--s2);border:1px solid var(--line);border-radius:var(--r-lg)"></div>
+        <div style="width:64px;height:64px;background:var(--s2);border:1px solid var(--line);border-radius:var(--r-xl)"></div></div>
+      <div class="tok">--r-xs 8 · sm 12 · md 16 · lg 22 · xl 28 · pill 999</div>
+      <div class="glass" style="padding:18px;text-align:center">بطاقة زجاجية: زجاج مضبّب + حد ضوء بيلف (الشكل 7)</div>
+      <div class="tok">.glass → --glass-a/b/c · --spec · --accrgb</div></div>
+  </div>
+
+  <div class="sec-title"><span>الأزرار والحالات</span></div>
+  <div class="grid2">
+    <div class="glass demo"><h3>الأزرار</h3><button class="btn-primary">زر أساسي</button>
+      <div class="row"><button class="btn-sm">زر صغير</button><button class="btn-ghost">ثانوي</button><button class="btn-ghost btn-danger">خطر</button><button class="btn-sm" disabled>معطّل</button></div>
+      <button class="btn-primary danger">إجراء حذف</button></div>
+    <div class="glass demo"><h3>حالات الأجهزة والحجوزات</h3>
+      <div class="row"><span class="chip s-available">متاح</span><span class="chip s-booked">محجوز بوقت</span><span class="chip s-open">محجوز مفتوح</span><span class="chip s-pending">بانتظار الموافقة</span><span class="chip s-rejected">مرفوض</span><span class="chip s-done">مكتمل</span></div>
+      <div class="filters" style="padding:0"><button class="fchip on">الكل</button><button class="fchip">PS5</button><button class="fchip">PS4</button><button class="fchip">VIP</button></div>
+      <div class="seg" style="margin:0"><button class="on">دخول</button><button>حساب جديد</button></div></div>
+  </div>
+
+  <div class="sec-title"><span>النماذج</span></div>
+  <div class="grid2">
+    <div class="glass form"><label>الاسم<input value="سارة محمد"></label><label>الفئة<select><option>PS5</option><option>PS4</option></select></label>
+      <label class="chk"><input type="checkbox" checked> ظاهر للعملاء</label><label class="chk"><input type="checkbox"> مخفي</label></div>
+    <div class="glass demo"><h3>مُحدّد المدة</h3><div class="stepper"><button class="step">−</button><div class="step-val"><b>٢ ساعة و٣٠ دقيقة</b><small>تنتهي الساعة ٥:٣٠ م</small></div><button class="step">+</button></div>
+      <div class="presets"><button class="fchip on">١ ساعة</button><button class="fchip">٢ ساعة</button><button class="fchip">٣ ساعة</button></div></div>
+  </div>
+
+  <div class="sec-title"><span>الكروت</span></div>
+  <div class="grid2">
+    <article class="glass item device s-available live"><div class="dev-row"><div class="dev-ico" data-i="gamepad"></div><div class="dev-main"><div class="item-name">PS5 - غرفة 1</div><div class="item-sub">PS5</div><span class="chip s-available">متاح</span></div><div class="item-price">٤٠ ج.م <small>للساعة</small></div></div><div class="time-line">جاهز للحجز الآن</div><div class="row"><button class="btn-sm">التفاصيل والحجز</button></div></article>
+    <article class="glass ad s-open running"><div class="dev-row"><div class="dev-ico" data-i="gamepad"></div><div class="dev-main"><div class="item-name">PS4 - جهاز 3</div><div class="item-sub">PS4</div><span class="chip s-open">محجوز مفتوح</span></div><div class="item-price">٢٥ ج.م<small>/س</small></div></div>
+      <div class="timer">٠١:٢٧:٤٦</div><div class="bill"><span>الحساب الحالي</span><b>٣٥ ج.م</b></div></article>
+    <div class="glass bigkpi"><small>صافي الربح</small><b>٤١٬٢٥٠ ج.م</b><div class="row"><em class="delta up">▲ ١٢٪</em><span class="muted small">مقارنة بالشهر السابق</span></div></div>
+    <div class="glass demo"><h3>رسم بياني</h3><div class="bars" style="height:90px"><i class="bar" style="height:30%"></i><i class="bar" style="height:55%"></i><i class="bar" style="height:40%"></i><i class="bar" style="height:80%"></i><i class="bar" style="height:100%"></i><i class="bar" style="height:65%"></i><i class="bar" style="height:72%"></i></div>
+      <div class="hrow"><div class="hrow-top"><b>PS5 - غرفة 1</b><span>٦٬٢٥٠ ج.م</span></div><div class="track"><i style="width:80%"></i></div></div></div>
+  </div>
+
+  <div class="sec-title"><span>التنقل والنوافذ المنبثقة والتنبيهات</span></div>
+  <div class="grid2">
+    <div class="navdemo"><nav class="bottomnav" id="navdemo"></nav></div>
+    <div class="glass demo"><h3>جرّبي المكوّنات</h3>
+      <div class="row"><button class="btn-ghost" id="bSheet">نافذة سفلية</button><button class="btn-ghost" id="bDlg">نافذة تأكيد</button></div>
+      <div class="row"><button class="btn-ghost" data-t="ok">تنبيه نجاح</button><button class="btn-ghost" data-t="err">تنبيه خطأ</button><button class="btn-ghost" data-t="info">معلومة</button></div></div>
+  </div>
+
+  <div class="sec-title"><span>الأيقونات والشعار</span></div>
+  <div class="icons" id="icons"></div>
+  <div class="grid2" style="margin-top:16px">
+    <div class="glass demo" style="justify-items:center"><span id="brandLg"></span></div>
+    <div class="glass demo" style="justify-items:center"><img src="../icons/icon-192.png" width="96" height="96" alt="أيقونة التطبيق" style="border-radius:24px;box-shadow:var(--sh-2)"><div class="tok">icons/icon.svg · 192 · 512</div></div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<div id="sheetRoot"></div>
+<script src="../js/ui/icons.js"></script>
+<script src="../js/ui/feedback.js"></script>
+<script src="../js/ui/fx.js"></script>
+<script>
+  const U = WhiteUI, $ = s => document.querySelector(s);
+  $('#brand').innerHTML = U.brand(); $('#brandLg').innerHTML = U.brand('lg');
+  document.querySelectorAll('[data-i]').forEach(e => e.innerHTML = U.icon(e.dataset.i));
+  const cs = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const SW = [['--brand-1','برتقالي ناري'],['--brand-2','برتقالي وسط'],['--brand-3','كهرماني'],['--bg','الخلفية'],['--s1','سطح 1'],['--s2','سطح 2'],['--ink','النص'],['--muted','نص ثانوي'],
+    ['--st-available','متاح'],['--st-booked','محجوز'],['--st-open','مفتوح'],['--st-pending','معلّق'],['--st-rejected','مرفوض'],['--cafe','الكافيه']];
+  function paintSw() { $('#sw').innerHTML = '<div class="swatch"><i style="background:var(--brand-grad)"></i><div><b>تدرّج العلامة</b><span class="tok">--brand-grad</span></div></div><div class="swatch"><i style="background:var(--btn-grad)"></i><div><b>تدرّج الأزرار</b><span class="tok">--btn-grad</span></div></div>' +
+    SW.map(([v, n]) => `<div class="swatch"><i style="background:var(${v})"></i><div><b>${n}</b><span class="tok">${v} · ${cs(v)}</span></div></div>`).join(''); }
+  paintSw(); new MutationObserver(paintSw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  $('#icons').innerHTML = U.names.map(n => `<div>${U.icon(n)}<span>${n}</span></div>`).join('') + `<div><svg class="i" viewBox="0 0 48 48" style="width:34px;height:34px"><use href="#logo"/></svg><span>logo</span></div>`;
+  $('#navdemo').innerHTML = [['home','الرئيسية',1],['gamepad','الأجهزة'],['coffee','المنيو'],['user','حسابي']].map(([i,t,on]) => `<button class="nav-item ${on?'on':''}">${U.icon(i)}<span>${t}</span></button>`).join('');
+  document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => U.toast({ ok: 'تم الحفظ بنجاح', err: 'تعذر تنفيذ الطلب، حاول مرة أخرى', info: 'ده تنبيه معلوماتي' }[b.dataset.t], b.dataset.t));
+  $('#bDlg').onclick = () => U.confirm({ title: 'حذف الفئة', text: 'هتتحذف الفئة نهائيًا. متأكدة؟', ok: 'حذف', danger: true }).then(v => U.toast(v ? 'تم الحذف' : 'تم الإلغاء'));
+  $('#bSheet').onclick = () => { $('#sheetRoot').innerHTML = `<div class="sheet-bg" id="sbg"><div class="glass sheet"><i class="grab"></i><h3>${U.icon('coffee')} نافذة سفلية</h3><p class="muted" style="line-height:1.9;margin-bottom:14px">تُستخدم للنماذج والتفاصيل: مقبض علوي، خلفية ضبابية، وحد متدرّج.</p><button class="btn-primary" id="sx">تم</button></div></div>`; $('#sbg').onclick = e => { if (e.target.id === 'sbg' || e.target.id === 'sx') $('#sheetRoot').innerHTML = ''; }; };
+</script>
+</body>
+</html>
