@@ -1,0 +1,57 @@
+/* ============================================================
+   White Design System — "Aurora"
+   الطبقة الأولى: التوكنز (ألوان، مسافات، أنصاف أقطار، خطوط، حركة).
+   أي تعديل للهوية يتم هنا فقط، والمكوّنات في app.css تقرأ منها.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* الخطوط */
+  --font:'Cairo',system-ui,'Segoe UI',Tahoma,Arial,sans-serif;
+  --font-brand:'Sora','Cairo',system-ui,sans-serif;
+  /* العلامة: بنفسجي كهربائي ← أزرق ← سماوي */
+  --brand-1:#6D5DF7; --brand-2:#3B82F6; --brand-3:#14C8E4;
+  --brand-grad:linear-gradient(135deg,var(--brand-1),var(--brand-2) 55%,var(--brand-3));
+  --btn-grad:linear-gradient(135deg,#5B4BEA,#2F6FEB);
+  --on-brand:#FFFFFF; --brand-text:#4A3FE0;
+  /* الأسطح والنصوص (فاتح) */
+  --bg:#F3F5FB; --bg-2:#E6EAF6; --s1:#FFFFFF; --s2:#F7F8FD;
+  --ink:#0D1220; --ink-2:#3C4560; --muted:#6C7691;
+  --line:rgba(13,18,32,.09);
+  /* الحدود السينمائية والإضاءة */
+  --edge-a:rgba(99,102,241,.55); --edge-b:rgba(13,18,32,.07); --edge-c:rgba(20,200,228,.42);
+  --spot:rgba(99,120,255,.14); --glow:rgba(79,110,255,.42);
+  --amb-1:rgba(123,108,255,.26); --amb-2:rgba(20,200,228,.18);
+  --grain:.03;
+  /* الحالات */
+  --st-available:#12B76A; --st-booked:#2E7CF6; --st-open:#8B5CF6; --st-pending:#F59E0B; --st-done:#8590A6; --st-rejected:#F04452;
+  --cafe:#FF8A4C;
+  /* الارتفاعات */
+  --sh-1:0 1px 2px rgba(13,18,32,.06);
+  --sh-2:0 1px 2px rgba(13,18,32,.05),0 10px 24px -12px rgba(13,18,32,.18),0 30px 60px -32px rgba(13,18,32,.26);
+  --sh-3:0 24px 60px -18px rgba(13,18,32,.40);
+  /* المقاييس */
+  --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:22px; --r-xl:28px; --r-pill:999px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px; --sp-10:40px;
+  --fs-xs:.75rem; --fs-sm:.875rem; --fs-md:1rem; --fs-lg:1.125rem; --fs-xl:1.375rem; --fs-2xl:1.75rem; --fs-3xl:2.25rem;
+  --nav-h:76px;
+  /* الحركة */
+  --ease:cubic-bezier(.2,.7,.2,1); --dur-1:.15s; --dur-2:.25s; --dur-3:.45s;
+  /* الطبقات */
+  --z-sticky:20; --z-nav:30; --z-sheet:70; --z-toast:90; --z-splash:100;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --brand-text:#AEBBFF;
+  --bg:#07090F; --bg-2:#0C1020; --s1:#10141F; --s2:#161B2A;
+  --ink:#EEF1FA; --ink-2:#C3CAE0; --muted:#8E98B3;
+  --line:rgba(160,180,255,.11);
+  --edge-a:rgba(139,150,255,.65); --edge-b:rgba(255,255,255,.07); --edge-c:rgba(20,200,228,.42);
+  --spot:rgba(120,140,255,.15); --glow:rgba(100,120,255,.50);
+  --amb-1:rgba(110,90,255,.30); --amb-2:rgba(20,200,228,.14);
+  --grain:.055;
+  --st-available:#34D399; --st-booked:#60A5FA; --st-open:#B79CFF; --st-pending:#FBBF24; --st-done:#94A3B8; --st-rejected:#FB7185;
+  --cafe:#FFA06B;
+  --sh-1:0 1px 0 rgba(255,255,255,.04) inset;
+  --sh-2:0 1px 0 rgba(255,255,255,.05) inset,0 18px 44px -14px rgba(0,0,0,.8);
+  --sh-3:0 28px 70px -16px rgba(0,0,0,.85);
+}
