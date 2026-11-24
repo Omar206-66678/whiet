@@ -17,8 +17,7 @@
     menu: [], cats: [], dev: null, book: { day: 0, hours: 1, start: null }, slots: null, authMode: 'login', afterLogin: false, busy: false };
 
   // ---------- أدوات ----------
-  let tt;
-  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600); }
+  function toast(msg) { window.WhiteUI.toast(msg); }
   const label = k => C.statuses[k] || k;
   const chip = k => `<span class="chip s-${esc(k)}">${esc(label(k))}</span>`;
 
@@ -38,7 +37,7 @@
     const tab = MAIN.includes(name) ? name : (st.stack.includes('devices') ? 'devices' : st.stack[0] || 'home');
     $$('.nav-item').forEach(b => b.classList.toggle('on', b.dataset.go === tab));
     $('#backBtn').hidden = MAIN.includes(name);
-    $('#topTitle').textContent = TITLES[name];
+    const tt2 = $('#topTitle'); if (name === 'home') tt2.innerHTML = window.WhiteUI.brand(); else tt2.textContent = TITLES[name];
     $('#bottomNav').hidden = name === 'booking';
     scrollTo({ top: 0 });
     render(name);
