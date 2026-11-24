@@ -25,8 +25,8 @@
   const st = { user: null, tab: 'devices', board: [], bk: { pending: [], confirmed: [] }, menu: [], cafe: [], cats: [], devs: [], shift: null, today: null, sig: '',
     seg: { acc: 'invoices', manage: 'devices' }, more: null, cust: { q: '', list: [], id: null, d: null }, month: { y: new Date().getFullYear(), m: new Date().getMonth() },
     dur: 1, bdur: 1, sheet: null, busy: false, bound: false };
-  let root, tt;
-  const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2800); };
+  let root;
+  const toast = m => g.WhiteUI.toast(m);
   const chip = (k, txt) => `<span class="chip s-${k}">${esc(txt)}</span>`;
   const isOwner = () => st.user && st.user.role === 'owner';
   const backlink = (label, attr) => `<button class="backlink" ${attr}>${ic('back')}<span>${label}</span></button>`;
@@ -41,7 +41,7 @@
   // ---------- النافذة السفلية ----------
   function openSheet(html, keep) {
     const old = $('#sheetRoot .sheet'), top = keep && old ? old.scrollTop : 0;
-    $('#sheetRoot').innerHTML = `<div class="sheet-bg" data-sheetbg><div class="glass sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+    $('#sheetRoot').innerHTML = `<div class="sheet-bg" data-sheetbg><div class="glass sheet" role="dialog" aria-modal="true"><i class="grab"></i>${html}</div></div>`;
     const n = $('#sheetRoot .sheet'); if (n && top) n.scrollTop = top;
   }
   const sheetOpen = () => !!$('#sheetRoot').firstChild;
@@ -53,7 +53,7 @@
     document.body.classList.add('is-staff');
     $('#staffRoot').innerHTML = `
       <header class="topbar"><button class="icon-btn" id="sLogout" aria-label="تسجيل الخروج">${ic('logout')}</button>
-        <div class="top-title">White · ${user.role === 'owner' ? 'لوحة المالك' : 'لوحة الكاشير'}</div>
+        <div class="top-title">${g.WhiteUI.brand()}<span class="roletag">${user.role === 'owner' ? 'المالك' : 'الكاشير'}</span></div>
         <button class="icon-btn" data-theme-toggle></button></header>
       <div class="rolebar"><span id="roleChip"></span><span class="who-name">${esc(user.name)}</span><button class="shiftpill" id="shiftPill" data-more="shift"></button></div>
       <main id="staffMain"></main>
@@ -487,7 +487,7 @@
       if (d.editmenu) return menuForm(st.menu.find(x => String(x.id) === d.editmenu));
       if (d.newcat) return catForm(d.newcat);
       if (d.editcat) { const c = st.cats.find(x => x.id === d.editcat); return c && catForm(c.kind, c); }
-      if (d.delcat) { const c = st.cats.find(x => x.id === d.delcat); if (!c || !confirm('حذف الفئة "' + c.name + '"؟')) return; return act(async () => { const r = await S.deleteCategory(c.id); toast(r.ok ? 'تم الحذف' : r.error); renderManage(); }); }
+      if (d.delcat) { const c = st.cats.find(x => x.id === d.delcat); if (!c) return; return g.WhiteUI.confirm({ title: 'حذف الفئة', text: 'هتتحذف الفئة "' + c.name + '". لو فيها عناصر مش هتتحذف.', ok: 'حذف', danger: true }).then(ok => ok && act(async () => { const r = await S.deleteCategory(c.id); toast(r.ok ? 'تم الحذف' : r.error); renderManage(); })); }
       if (d.demote) return act(async () => { const r = await S.setRole(d.demote, 'customer'); toast(r.ok ? 'تم إلغاء الصلاحية' : r.error); renderManage(); });
     });
     // بحث العملاء + فرق الدرج لحظيًا
