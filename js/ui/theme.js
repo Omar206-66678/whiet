@@ -13,7 +13,7 @@
   }
   function apply() {
     const t = eff(), r = document.documentElement; r.dataset.theme = t; r.style.colorScheme = t;
-    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', t === 'dark' ? '#0A0908' : '#F6F2EA');
+    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', t === 'dark' ? '#08080B' : '#F4F5F9');
     paint();
   }
   function set(m) { mode = m; try { localStorage.setItem(KEY, m); } catch (_) {} apply(); }
