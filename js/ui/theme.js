@@ -21,6 +21,13 @@
   if (mq.addEventListener) mq.addEventListener('change', () => { if (mode === 'auto') apply(); });
   document.addEventListener('click', e => { if (e.target.closest && e.target.closest('[data-theme-toggle]')) toggle(); });
   document.addEventListener('DOMContentLoaded', paint);
+  // وضع الأداء: تلقائي / خفيف (بدون حركة) / كامل
+  const PK = 'white-perf'; let pm = 'auto'; try { pm = localStorage.getItem(PK) || 'auto'; } catch (_) {}
+  if (!['auto', 'lite', 'full'].includes(pm)) pm = 'auto';
+  const autoLite = () => (g.matchMedia && g.matchMedia('(prefers-reduced-motion: reduce)').matches) || (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.connection && navigator.connection.saveData);
+  const applyPerf = () => { document.documentElement.dataset.perf = pm === 'auto' ? (autoLite() ? 'lite' : 'full') : pm; };
+  g.WhitePerf = { get: () => pm, effective: () => document.documentElement.dataset.perf, set(m) { pm = m; try { localStorage.setItem(PK, m); } catch (_) {} applyPerf(); } };
+  applyPerf();
   g.WhiteTheme = { get: () => mode, effective: eff, set, toggle, paint };
   apply();
 })(window);
