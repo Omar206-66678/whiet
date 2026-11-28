@@ -61,7 +61,6 @@
 .inv-amt{font-weight:800;font-variant-numeric:tabular-nums;color:var(--brand-text);white-space:nowrap}
 .inv-amt::after{content:"‹";margin-inline-start:10px;color:var(--muted);font-weight:400}
 .inv:active{background:color-mix(in srgb,var(--brand-2) 12%,transparent)}
-.seg.n4{grid-template-columns:repeat(4,1fr)}.seg.n4 button{font-size:.85rem;padding:10px 4px}
 
 /* المزيد (قائمة الأقسام) */
 .hub{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
@@ -115,12 +114,6 @@
 .opt:hover{border-color:var(--edge-a)}.opt small{display:block;color:var(--muted);font-weight:600}.opt:active{transform:scale(.96)}
 .cnt{position:absolute;top:-8px;inset-inline-start:-6px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;display:grid;place-items:center;background:var(--brand-grad);color:var(--on-brand);font-size:.75rem;font-weight:800;box-shadow:0 4px 10px -2px var(--glow)}
 
-/* مُحدّد المدة */
-.stepper{display:grid;grid-template-columns:64px 1fr 64px;gap:12px;align-items:center;margin:6px 0 14px}
-.step{height:64px;border-radius:20px;font-size:2rem;font-weight:800;line-height:1;background:var(--btn-grad);color:var(--on-brand);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 26px -10px var(--glow);transition:transform .15s}
-.step:active{transform:scale(.94)}.step:disabled{opacity:.3;box-shadow:none}
-.step-val{text-align:center;display:grid;gap:4px}.step-val b{font-size:1.4rem}.step-val small{color:var(--muted);font-weight:600}
-.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
 
 /* أصناف الكافيه */
 .ilist{display:grid;gap:8px}

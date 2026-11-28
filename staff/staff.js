@@ -12,8 +12,7 @@
   const dshort = t => new Date(t).toLocaleDateString(C.locale, { day: 'numeric', month: 'short' });
   const p2 = n => String(n).padStart(2, '0');
   const hms = ms => { const s = Math.floor(Math.abs(ms) / 1000); return `${p2(Math.floor(s / 3600))}:${p2(Math.floor(s % 3600 / 60))}:${p2(s % 60)}`; };
-  const durText = h => { const hh = Math.floor(h), m = Math.round((h - hh) * 60); return nf(hh) + ' ساعة' + (m ? ' و' + nf(m) + ' دقيقة' : ''); };
-  const minText = m => { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return (h ? nf(h) + ' ساعة' : '') + (h && r ? ' و' : '') + (r || !h ? nf(r) + ' دقيقة' : ''); };
+  const FM = g.WhiteFmt, durText = h => FM.hours(h), minText = m => FM.duration(m);
   const sumItems = it => Math.round(it.reduce((s, i) => s + Number(i.unit_price) * (i.qty || 1), 0) * 100) / 100;
   const initials = n => String(n || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('');
   const toLocalInput = t => { const d = new Date(t); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}`; };
@@ -64,12 +63,15 @@
     if (!st.bound) { bind(); st.bound = true; setInterval(tick, 1000);
       setInterval(async () => { if (!st.user || sheetOpen() || document.hidden) return; await reload(); }, 15000); }
     refresh().then(() => show('devices'));
+    if (g.WhiteStore.subscribe && !st.unsub) { let t = 0; st.unsub = g.WhiteStore.subscribe(() => { clearTimeout(t); t = setTimeout(() => reload(true), 450); }); }
   }
   async function refresh() {
+    const prevP = st.bk.pending.length, wasLoaded = st.loaded;
     try {
       [st.board, st.bk, st.menu, st.cafe, st.cats, st.shift] = await Promise.all([S.board(), S.bookings(), S.menuAll(), S.cafeOrders(), S.categories(), S.myShift()]);
       st.today = isOwner() ? (await S.summary()).invoices.reduce((a, v) => a + Number(v.total), 0) : null;
     } catch (_) { toast('تعذر تحميل البيانات'); }
+    st.loaded = true; if (wasLoaded && st.bk.pending.length > prevP) { toast('وصل طلب حجز جديد'); if (navigator.vibrate) navigator.vibrate([120, 60, 120]); }
     paintHeader();
     const sig = JSON.stringify([st.board, st.bk, st.cafe, st.shift && st.shift.id, st.shift && st.shift.invoices, st.today]); const changed = sig !== st.sig; st.sig = sig; return changed;
   }
@@ -83,6 +85,7 @@
   // التحديث التلقائي: يعيد الرسم فقط لو البيانات اتغيّرت، ويحافظ على مكان السكرول
   async function reload(force) { const ch = await refresh(); if ((ch || force) && ['devices', 'cafe', 'bookings'].includes(st.tab)) rerender(); }
   function show(tab) {
+    document.documentElement.dataset.sec = tab === 'cafe' ? 'cafe' : 'play';
     st.tab = tab; if (tab === 'more') st.more = null; if (tab === 'customers') { st.cust.id = null; st.cust.d = null; }
     $$('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab)); scrollTo(0, 0);
     FN()[tab]();
@@ -142,8 +145,8 @@
   function durSheet(deviceId, customerId) {
     const r = C.staffSession; st.dur = r.minHours; st.sheet = { dur: true, customerId: customerId || null };
     openSheet(`<h3>تشغيل بوقت محدد</h3>${stepper(st.dur, '')}
-      <div class="presets">${[1, 2, 3, 5, 10].filter(h => h >= r.minHours && h <= r.maxHours).map(h => `<button class="fchip" data-preset="${h}">${nf(h)} ساعة</button>`).join('')}</div>
-      <p class="mini" style="margin:10px 2px">الزيادة والنقص بنص ساعة، من ${nf(r.minHours)} لحد ${nf(r.maxHours)} ساعات. والحساب بيكون على الوقت الفعلي.</p>
+      <div class="presets">${[1, 2, 3, 5, 10].filter(h => h >= r.minHours && h <= r.maxHours).map(h => `<button class="fchip" data-preset="${h}">${esc(durText(h))}</button>`).join('')}</div>
+      <p class="mini" style="margin:10px 2px">الزيادة والنقص بنص ساعة، من ${esc(durText(r.minHours))} لحد ${esc(durText(r.maxHours))}. والحساب بيكون على الوقت الفعلي.</p>
       <div class="actions"><button class="btn-primary" style="flex:1" data-startnow="${esc(deviceId)}">تشغيل</button>${customerId ? `<button class="btn-ghost" data-startopen="${esc(deviceId)}">وقت مفتوح</button>` : ''}<button class="btn-ghost" data-closesheet>إلغاء</button></div>`);
     paintDur('', 'dur', true);
   }
@@ -204,7 +207,7 @@
   // ---------- الكافيه المستقل ----------
   function cafeCard(o) {
     const total = sumItems(o.items);
-    return `<article class="glass ad"><div class="item-head"><div><div class="item-name">${esc(o.label || o.customer_name || 'طلب بدون اسم')}</div><div class="item-sub">فُتح ${esc(clock(o.opened_at))}${o.customer_name && o.label !== o.customer_name ? ' · ' + esc(o.customer_name) : ''}</div></div><b class="item-price">${esc(money(total))}</b></div>
+    return `<article class="glass ad cafe-card"><div class="item-head"><div><div class="item-name">${esc(o.label || o.customer_name || 'طلب بدون اسم')}</div><div class="item-sub">فُتح ${esc(clock(o.opened_at))}${o.customer_name && o.label !== o.customer_name ? ' · ' + esc(o.customer_name) : ''}</div></div><b class="item-price">${esc(money(total))}</b></div>
       <div class="mini items-line">${o.items.length ? itemsLine(o.items) : 'لسه مفيش أصناف'}</div>
       <div class="actions"><button class="btn-ghost" data-items="${esc(o.id)}" data-kind="cafe" data-title="${esc(o.label || o.customer_name || 'الطلب')}">${ic('plus')} الأصناف</button>
         <button class="btn-sm" data-cafeclose="${esc(o.id)}" ${o.items.length ? '' : 'disabled'}>تحصيل وإنهاء</button>
@@ -284,6 +287,7 @@
   function renderHub() {
     const sh = st.shift;
     root.innerHTML = `<div class="glass perm"><div class="row" style="margin-bottom:8px"><span class="avatar">${esc(initials(st.user.name))}</span><div><div class="item-name">${esc(st.user.name)}</div>${chip(isOwner() ? 'confirmed' : 'booked', C.roles[st.user.role])}</div></div>${PERMS[st.user.role]}</div>
+      <div class="glass form" style="margin-bottom:14px"><div class="setrow" style="padding:0;display:grid"><span>وضع الأداء <small class="muted">(لو الشاشة تقيلة اختار خفيف)</small></span><div class="seg n3" style="margin:8px 0 0">${[['auto', 'تلقائي'], ['lite', 'خفيف'], ['full', 'كامل']].map(([k, t]) => `<button class="${g.WhitePerf.get() === k ? 'on' : ''}" data-perf="${k}">${t}</button>`).join('')}</div></div></div>
       <div class="hub">
         <button class="glass hubcard" data-more="shift"><span class="ico">${ic('clock')}</span><b>الشيفت</b><small>${sh ? 'مفتوح من ' + esc(clock(sh.opened_at)) : 'مغلق · اضغط للفتح'}</small></button>
         ${isOwner() ? `<button class="glass hubcard" data-more="accounts"><span class="ico">${ic('chart')}</span><b>حسابات اليوم</b><small>فواتير ومصروفات</small></button>
@@ -368,7 +372,7 @@
   // ---------- الإعدادات (للمالك) ----------
   async function renderManage() {
     try { [st.devs, st.menu, st.cats] = await Promise.all([S.devicesAll(), S.menuAll(), S.categories()]); } catch (_) { return toast('تعذر تحميل الإعدادات'); }
-    const seg = st.seg.manage, SEG = [['devices', 'الأجهزة'], ['menu', 'المنيو'], ['cats', 'الفئات'], ['team', 'الفريق']];
+    const seg = st.seg.manage, SEG = [['devices', 'الأجهزة'], ['menu', 'المنيو'], ['cats', 'الفئات'], ['hours', 'الساعات'], ['team', 'الفريق']];
     let body = '';
     if (seg === 'devices') body = `<div class="sec-title"><span>الأجهزة والأسعار</span><button class="btn-sm" data-newdev>${ic('plus')} جهاز</button></div>
       <div class="dgrid">${st.devs.map(d => `<article class="glass item"><div class="item-head"><div><div class="item-name">${esc(d.name)}</div><div class="item-sub">${esc(d.category)} · ${esc(money(d.price_hour))} للساعة</div></div>${chip(d.active === false ? 'done' : 'available', d.active === false ? 'مخفي' : 'ظاهر')}</div>
@@ -382,6 +386,17 @@
           <div class="item-sub">${nf(used(c))} ${kind === 'device' ? 'جهاز' : 'صنف'}${c.description ? ' · ' + esc(c.description) : ''}</div></div></div>
           <div class="row"><button class="btn-ghost" data-editcat="${esc(c.id)}">${ic('edit')} تعديل</button><button class="btn-ghost btn-danger" data-delcat="${esc(c.id)}">${ic('x')} حذف</button></div></article>`).join('') || '<div class="glass empty">لا توجد فئات.</div>'}</div>`; };
       body = sec('device', 'فئات الأجهزة') + sec('menu', 'فئات المنيو') + '<p class="note">تعديل اسم فئة بينتقل تلقائيًا لكل الأجهزة أو الأصناف التابعة لها. والحذف مش بيتم لو فيها عناصر.</p>';
+    } else if (seg === 'hours') {
+      let cfg; try { cfg = await S.settings(); } catch (_) { return toast('تعذر تحميل الإعدادات'); }
+      const hl = h => new Date(2000, 0, 1, h % 24).toLocaleTimeString(C.locale, { hour: 'numeric', minute: '2-digit' }) + (h >= 24 ? ' (اليوم التالي)' : '');
+      const hopt = (a, b, cur) => Array.from({ length: b - a + 1 }, (_, i) => a + i).map(h => `<option value="${h}" ${h === cur ? 'selected' : ''}>${esc(hl(h))}</option>`).join('');
+      body = `<div class="sec-title"><span>ساعات العمل وقواعد الحجز</span></div><form class="glass form" id="hoursForm" novalidate>
+        <label>ساعة الفتح<select name="open_hour">${hopt(0, 23, cfg.open_hour)}</select></label><label>ساعة الإغلاق<select name="close_hour">${hopt(1, 30, cfg.close_hour)}</select></label>
+        <label>أقل مدة حجز (ساعات)<input name="min_hours" type="number" step="0.5" min="0.5" max="12" dir="ltr" value="${cfg.min_hours}"></label>
+        <label>أطول مدة حجز (ساعات)<input name="max_hours" type="number" step="0.5" min="0.5" max="12" dir="ltr" value="${cfg.max_hours}"></label>
+        <label>خطوة الحجز<select name="step_min">${[15, 30, 60].map(v => `<option value="${v}" ${v === cfg.step_min ? 'selected' : ''}>${esc(durText(v / 60))}</option>`).join('')}</select></label>
+        <label>أقل وقت قبل الحجز (دقائق)<input name="lead_min" type="number" min="0" max="240" step="5" dir="ltr" value="${cfg.lead_min}"></label>
+        <div class="err" id="fErr"></div><button class="btn-primary" type="submit">حفظ</button></form><p class="note">التعديلات بتنطبق على حجوزات العملاء فورًا.</p>`;
     } else {
       let team; try { team = await S.team(); } catch (_) { return toast('تعذر تحميل الفريق'); }
       body = `<div class="sec-title"><span>فريق العمل</span></div><div class="list">${team.map(u => `<article class="glass item"><div class="item-head"><div><div class="item-name">${esc(u.name)}</div><div class="item-sub ltr">${esc(u.phone)}</div></div>${chip(u.role === 'owner' ? 'confirmed' : 'booked', C.roles[u.role])}</div>
@@ -391,7 +406,7 @@
           <label>رقم هاتف الموظف<input name="phone" type="tel" inputmode="tel" dir="ltr" placeholder="01XXXXXXXXX" required></label>
           <div class="err" id="fErr"></div><button class="btn-primary" type="submit">تعيين ككاشير</button></form>`;
     }
-    root.innerHTML = `${backlink('المزيد', 'data-morehub')}<div class="seg n4">${SEG.map(([k, t]) => `<button class="${seg === k ? 'on' : ''}" data-seg="manage:${k}">${t}</button>`).join('')}</div>${body}`;
+    root.innerHTML = `${backlink('المزيد', 'data-morehub')}<div class="seg n5">${SEG.map(([k, t]) => `<button class="${seg === k ? 'on' : ''}" data-seg="manage:${k}">${t}</button>`).join('')}</div>${body}`;
   }
   const catOptions = (kind, cur) => { const names = st.cats.filter(c => c.kind === kind).map(c => c.name); if (cur && !names.includes(cur)) names.push(cur);
     return names.length ? names.map(n => `<option ${n === cur ? 'selected' : ''}>${esc(n)}</option>`).join('') : '<option value="">(أضف فئة من تبويب الفئات أولًا)</option>'; };
@@ -425,7 +440,7 @@
   // ---------- الأحداث ----------
   const act = async fn => { if (st.busy) return; st.busy = true; try { await fn(); } finally { st.busy = false; } };
   const stay = async () => { await refresh(); if (st.sheet && st.sheet.kind && !st.sheet.preview) return itemsSheet(st.sheet.kind, st.sheet.id, st.sheet.title, true); };
-  const goMore = sub => { st.more = sub; st.tab = 'more'; $$('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === 'more')); scrollTo(0, 0); renderMore(); };
+  const goMore = sub => { document.documentElement.dataset.sec = 'play'; st.more = sub; st.tab = 'more'; $$('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === 'more')); scrollTo(0, 0); renderMore(); };
   function bind() {
     document.addEventListener('click', e => {
       if (!st.user) return;
@@ -433,6 +448,7 @@
       if (e.target.closest('#sLogout')) return act(async () => { await g.WhiteStore.signOut(); location.reload(); });
       const t = e.target.closest('#staffRoot button, #sheetRoot button, #staffRoot a'); if (!t || t.tagName === 'A') return; const d = t.dataset;
       if (d.tab) return show(d.tab);
+      if (d.perf) { g.WhitePerf.set(d.perf); return renderHub(); }
       if (d.more) return goMore(d.more);
       if ('morehub' in d) return goMore(null);
       if (d.seg) { const [k, v] = d.seg.split(':'); st.seg[k] = v; return (k === 'acc' ? renderAccounts : renderManage)(); }
@@ -500,7 +516,7 @@
     });
     document.addEventListener('submit', e => {
       if (!st.user) return; const f = e.target, id = f.getAttribute('id');  // لا نستخدم f.id لأن حقلًا اسمه id يحجب الخاصية
-      const ALL = ['cafeForm', 'bookForm', 'shiftOpenForm', 'shiftExpForm', 'shiftCloseForm', 'expForm', 'devForm', 'menuForm', 'catForm', 'teamForm']; if (!ALL.includes(id)) return;
+      const ALL = ['cafeForm', 'bookForm', 'shiftOpenForm', 'shiftExpForm', 'shiftCloseForm', 'expForm', 'devForm', 'menuForm', 'catForm', 'teamForm', 'hoursForm']; if (!ALL.includes(id)) return;
       e.preventDefault();
       const fd = new FormData(f), err = m => { const x = $('#fErr'); if (x) x.textContent = m; };
       if (id === 'cafeForm') return act(async () => { const r = await S.openCafe((fd.get('label') || '').trim()); if (!r.ok) return toast(r.error); await refresh(); renderCafe(); itemsSheet('cafe', r.id, (fd.get('label') || '').trim() || 'الطلب'); });
@@ -522,6 +538,9 @@
         const r = await S.saveMenu({ id: fd.get('id') || null, name, desc: (fd.get('desc') || '').trim(), cat, price, active: !!fd.get('active') }); if (!r.ok) return err(r.error || 'تعذر الحفظ'); closeSheet(); toast('تم الحفظ'); renderManage(); });
       if (id === 'catForm') return act(async () => { const name = (fd.get('name') || '').trim(); if (!name) return err('اكتب اسم الفئة');
         const r = await S.saveCategory({ id: fd.get('id') || null, kind: fd.get('kind'), name, description: (fd.get('description') || '').trim() }); if (!r.ok) return err(r.error || 'تعذر الحفظ'); closeSheet(); toast('تم الحفظ'); renderManage(); });
+      if (id === 'hoursForm') return act(async () => { const v = { open_hour: +fd.get('open_hour'), close_hour: +fd.get('close_hour'), min_hours: parseFloat(fd.get('min_hours')), max_hours: parseFloat(fd.get('max_hours')), step_min: +fd.get('step_min'), lead_min: +fd.get('lead_min') };
+        if (!(v.close_hour > v.open_hour)) return err('ساعة الإغلاق لازم تكون بعد ساعة الفتح'); if (!(v.min_hours > 0) || !(v.max_hours >= v.min_hours)) return err('راجع أقل وأطول مدة حجز');
+        const r = await S.saveSettings(v); if (!r.ok) return err(r.error || 'تعذر الحفظ'); Object.assign(C.booking, { openHour: v.open_hour, closeHour: v.close_hour, minHours: v.min_hours, maxHours: v.max_hours, stepMin: v.step_min, leadMin: v.lead_min }); toast('تم حفظ ساعات العمل'); });
       if (id === 'teamForm') return act(async () => { const phone = g.WhitePhone.normalize(fd.get('phone')); if (!g.WhitePhone.valid(phone)) return err('اكتب رقم هاتف صحيح');
         const r = await S.setRole(phone, 'cashier'); if (!r.ok) return err(r.error); toast('تم تعيين الكاشير'); renderManage(); });
     });
