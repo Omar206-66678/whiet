@@ -34,10 +34,10 @@
     return { ok: true };
   }
 
-  // مواعيد البداية المتاحة في يوم معين (كل stepMin دقيقة) لمدة hours
+  // مواعيد البداية المتاحة في يوم العمل: من ساعة الفتح لحد ساعة الإغلاق (ممكن بعد منتصف الليل: 26 = 2 صباحًا)
   function freeStarts(deviceId, dayStart, hours, sessions, bookings, now, rules) {
-    const out = [], span = hours * H;
-    for (let t = dayStart; t < dayStart + 24 * H; t += rules.stepMin * MIN) {
+    const out = [], span = hours * H, from = dayStart + (rules.openHour || 0) * H, to = dayStart + (rules.closeHour || 24) * H;
+    for (let t = from; t + span <= to + 1; t += rules.stepMin * MIN) {
       if (!validateRequest({ start: t, hours }, now, rules).ok) continue;
       if (!hasConflict(deviceId, t, t + span, sessions, bookings)) out.push(t);
     }
