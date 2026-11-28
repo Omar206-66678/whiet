@@ -14,12 +14,12 @@ window.WHITE_CONFIG = {
   timezone: 'Africa/Cairo', // لازم تطابق المنطقة الزمنية داخل schema_phase5/6.sql
   requireShift: true,      // لازم الموظف يفتح شيفت قبل تحصيل أي فاتورة
   dayStartHour: 6, // بداية يوم العمل لحسابات اليوم
-  booking: { minHours: 1, maxHours: 6, stepMin: 30, leadMin: 15 },
+  booking: { minHours: 1, maxHours: 10, stepMin: 30, leadMin: 15, openHour: 12, closeHour: 26 },
   // حالات الأجهزة الموحدة. مصدر واحد للألوان والنصوص في كل الشاشات
   statuses: {
     available: 'متاح',
-    booked:    'محجوز بوقت محدد',
-    open:      'محجوز مفتوح',
+    booked:    'محجوز',
+    open:      'جلسة مفتوحة',
     pending:   'بانتظار الموافقة',
     done:      'مكتمل',
     rejected:  'مرفوض',
