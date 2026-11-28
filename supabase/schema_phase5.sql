@@ -1,30 +1,26 @@
 -- White — المرحلة 5: تقوية الأمان وقواعد العمل داخل قاعدة البيانات
 -- شغّله بعد schema.sql و schema_phase4.sql
--- مهم: ساعات العمل والمنطقة الزمنية هنا لازم تطابق js/config.js (hours, booking, dayStartHour)
+-- ساعات العمل وقواعد الحجز بتتقرأ من جدول app_settings (المالك بيعدّلها من التطبيق)
 
 -- 1) سياسة إدخال الحجز: العميل لا يملأ decided_by ولا يغيّر حالة
 drop policy if exists bookings_insert on bookings;
 create policy bookings_insert on bookings for insert
   with check (customer_id = auth.uid() and status = 'pending' and decided_by is null and starts_at > now());
 
--- 2) قواعد الحجز تُفرض هنا حتى لو اتجاوزت الواجهة
+-- 2) قواعد الحجز تُفرض هنا حتى لو اتجاوزت الواجهة (القيم من جدول app_settings)
 create or replace function validate_booking() returns trigger
 language plpgsql security definer set search_path = public as $$
-declare
-  tz constant text := 'Africa/Cairo';          -- غيّرها لو منطقتك الزمنية مختلفة
-  open_h constant int := 12;                   -- يفتح 12 ظهرًا
-  close_h constant int := 26;                  -- يقفل 2 فجرًا (26 = 2 صباح اليوم التالي)
-  day_start_h constant int := 6;               -- بداية يوم العمل
-  hrs numeric; l_start timestamp; l_end timestamp; biz_day date;
+declare cfg app_settings; hrs numeric; l_start timestamp; l_end timestamp; biz_day date;
 begin
   if is_staff() then return new; end if;
+  select * into cfg from app_settings where id = 1;
   if not exists (select 1 from devices where id = new.device_id and active) then raise exception 'الجهاز غير متاح للحجز'; end if;
-  if new.starts_at < now() + interval '15 minutes' then raise exception 'الموعد قريب جدًا'; end if;
+  if new.starts_at < now() + make_interval(mins => cfg.lead_min) then raise exception 'الموعد قريب جدًا'; end if;
   hrs := extract(epoch from (new.ends_at - new.starts_at)) / 3600;
-  if hrs < 1 or hrs > 6 or mod(round(hrs * 60)::int, 30) <> 0 then raise exception 'مدة الحجز غير صحيحة'; end if;
-  l_start := new.starts_at at time zone tz;  l_end := new.ends_at at time zone tz;
-  biz_day := (l_start - make_interval(hours => day_start_h))::date;
-  if l_start < biz_day + make_interval(hours => open_h) or l_end > biz_day + make_interval(hours => close_h) then
+  if hrs < cfg.min_hours or hrs > cfg.max_hours or mod(round(hrs * 60)::int, cfg.step_min) <> 0 then raise exception 'مدة الحجز غير صحيحة'; end if;
+  l_start := new.starts_at at time zone cfg.timezone;  l_end := new.ends_at at time zone cfg.timezone;
+  biz_day := (l_start - make_interval(hours => cfg.day_start))::date;
+  if l_start < biz_day + make_interval(hours => cfg.open_hour) or l_end > biz_day + make_interval(hours => cfg.close_hour) then
     raise exception 'خارج ساعات العمل';
   end if;
   if (select count(*) from bookings where customer_id = new.customer_id and status = 'pending') >= 3 then

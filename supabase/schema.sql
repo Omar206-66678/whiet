@@ -99,3 +99,20 @@ $$ update bookings set status = 'cancelled' where id = p_id and customer_id = au
 
 -- لترقية حساب إلى كاشير/إدارة (من SQL Editor فقط):
 -- لترقية أول مالك (مرة واحدة): update profiles set role = 'owner' where phone = '01XXXXXXXXX';
+
+-- إعدادات التشغيل (ساعات العمل وقواعد الحجز): يقرأها الجميع ويعدّلها المالك من لوحة الإعدادات
+create table app_settings (
+  id int primary key default 1 check (id = 1),
+  open_hour int not null default 12 check (open_hour between 0 and 23),       -- ساعة الفتح
+  close_hour int not null default 26 check (close_hour between 1 and 30),     -- ساعة الإغلاق (26 = 2 صباحًا اليوم التالي)
+  day_start int not null default 6 check (day_start between 0 and 12),        -- بداية يوم العمل (للتقارير)
+  min_hours numeric(4,1) not null default 1 check (min_hours > 0),
+  max_hours numeric(4,1) not null default 10 check (max_hours >= min_hours and max_hours <= 12),
+  step_min int not null default 30 check (step_min in (15, 30, 60)),
+  lead_min int not null default 15 check (lead_min between 0 and 240),        -- أقل وقت قبل الحجز
+  timezone text not null default 'Africa/Cairo'
+);
+insert into app_settings default values;
+alter table app_settings enable row level security;
+create policy settings_read  on app_settings for select using (true);
+create policy settings_owner on app_settings for update using (is_owner()) with check (is_owner());
