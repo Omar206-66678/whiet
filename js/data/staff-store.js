@@ -130,6 +130,8 @@
         return finalize({ invoices: inv.length, device_rev: inv.reduce((a, v) => a + v.time_amount, 0), cafe_rev: inv.reduce((a, v) => a + v.items_amount, 0), expenses: exp.reduce((a, x) => a + x.amount, 0), daily,
           per_device: Object.values(devs).sort((a, b) => b.revenue - a.revenue), top_items: Object.values(items).sort((a, b) => b.amount - a.amount).slice(0, 8),
           expenses_by: Object.entries(by(exp, x => x.title, x => x.amount)).map(([title, amount]) => ({ title, amount })).sort((a, b) => b.amount - a.amount) }); },
+      async settings() { return { ...DB.reload().settings }; },
+      async saveSettings(v) { const db = DB.reload(); Object.assign(db.settings, v); DB.save(); return { ok: true }; },
       async team() { return DB.reload().users.filter(u => u.role !== 'customer').map(u => ({ id: u.id, name: u.name, phone: u.phone, role: u.role })); },
       async setRole(phone, role) {
         const db = DB.reload(), u = db.users.find(x => x.phone === phone);
@@ -245,12 +247,14 @@
       // ---- التقارير الشهرية ----
       async report(y, m) { const [from, to] = monthRange(y, m);
         const { data, error } = await sb.rpc('monthly_report', { p_from: iso(from), p_to: iso(to), p_tz: C.timezone, p_day_start: C.dayStartHour }); if (error) throw error; return finalize(data); },
+      async settings() { const { data } = await sb.from('app_settings').select('*').eq('id', 1).single(); return data; },
+      async saveSettings(v) { const { error } = await sb.from('app_settings').update(v).eq('id', 1); return error ? fail(error, 'تعذر الحفظ (للمالك فقط)') : { ok: true }; },
       async team() { const { data } = await sb.from('profiles').select('id,full_name,phone,role').in('role', ['cashier', 'owner']).order('role'); return (data || []).map(u => ({ id: u.id, name: u.full_name, phone: u.phone, role: u.role })); },
       async setRole(phone, role) { const { error } = await sb.rpc('set_role', { p_phone: phone, p_role: role }); return error ? fail(error, 'تعذر تغيير الصلاحية') : { ok: true }; }
     };
   }
   function brokenStaff() { const no = { ok: false, error: 'تعذر الاتصال بالخادم' }, f = async () => { throw new Error('x'); };
-    return { mode: 'broken', dayStart, setUser() {}, myShift: f, shifts: f, customers: f, customerDetail: f, report: f, openShift: async () => no, closeShift: async () => no, createBookingFor: async () => no, board: f, bookings: f, summary: f, devicesAll: f, menuAll: f, categories: f, team: f, cafeOrders: f, itemsOf: f, previewInvoice: f, invoiceDetail: f,
+    return { mode: 'broken', dayStart, setUser() {}, myShift: f, shifts: f, customers: f, customerDetail: f, report: f, openShift: async () => no, closeShift: async () => no, createBookingFor: async () => no, board: f, bookings: f, summary: f, devicesAll: f, menuAll: f, categories: f, settings: f, saveSettings: async () => no, team: f, cafeOrders: f, itemsOf: f, previewInvoice: f, invoiceDetail: f,
       startSession: async () => no, addItem: async () => no, removeItem: async () => no, closeSession: async () => no, openCafe: async () => no, cancelCafe: async () => no, closeCafe: async () => no,
       decide: async () => no, addExpense: async () => no, saveDevice: async () => no, saveMenu: async () => no, saveCategory: async () => no, deleteCategory: async () => no, setRole: async () => no }; }
 
