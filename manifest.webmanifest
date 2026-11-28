@@ -1,9 +1,11 @@
 {
+  "id": "./index.html",
   "name": "White | بلايستيشن وكافيه", "short_name": "White", "lang": "ar", "dir": "rtl",
   "start_url": "./index.html", "scope": "./", "display": "standalone",
   "background_color": "#08080B", "theme_color": "#FF6A1F",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
